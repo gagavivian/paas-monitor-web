@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<prototypes>
+	<prototype>
+		<name>Win32</name>
+		<type>2</type>
+	</prototype>
+	<prototype>
+		<name>WindowsServer</name>
+		<type>3</type>
+	</prototype>
+	<prototype>
+		<name>FileServer</name>
+		<type>3</type>
+	</prototype>
+	<prototype>
+		<name>FileServer Mount</name>
+		<type>4</type>
+	</prototype>
+	<prototype>
+		<name>Net Services</name>
+		<type>3</type>
+	</prototype>
+	<prototype>
+		<name>NetworkServer</name>
+		<type>3</type>
+	</prototype>
+	<prototype>
+		<name>NetworkServer Interface</name>
+		<type>4</type>
+	</prototype>
+	<prototype>
+		<name>ProcessServer</name>
+		<type>3</type>
+	</prototype>
+	<prototype>
+		<name>CPU</name>
+		<type>4</type>
+	</prototype>
+	<prototype>
+		<name>IIS 7.x</name>
+		<type>5</type>
+	</prototype>
+	<prototype>
+		<name>IIS 7.x VHost</name>
+		<type>7</type>
+	</prototype>
+	<prototype>
+		<name>IIS 6.x</name>
+		<type>5</type>
+	</prototype>
+	<prototype>
+		<name>IIS 6.x VHost</name>
+		<type>7</type>
+	</prototype>
+	<prototype>
+		<name>Apache httpd</name>
+		<type>5</type>
+	</prototype>
+	<prototype>
+		<name>Apache Tomcat 5.5</name>
+		<type>5</type>
+	</prototype>
+</prototypes>
