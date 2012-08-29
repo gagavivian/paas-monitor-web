@@ -1,6 +1,5 @@
 package org.seforge.monitor.web;
 
-import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -8,7 +7,6 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 
 import org.seforge.monitor.domain.Resource;
-import org.seforge.monitor.hqapi.HQProxy;
 import org.seforge.monitor.manager.ResourceManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -25,10 +23,6 @@ import flexjson.transformer.DateTransformer;
 @RequestMapping("/model")
 @Controller
 public class ModelController {
-
-	@Autowired
-	private HQProxy proxy;
-
 	@Autowired
 	private ResourceManager resourceManager;
 
@@ -37,7 +31,7 @@ public class ModelController {
 		HttpHeaders responseHeaders = new HttpHeaders();
 		responseHeaders.add("Content-Type", "application/json");
 		List<Resource> entities;
-		entities = resourceManager.getAllVims();
+		entities = resourceManager.getAllPhyms();
 		return new ResponseEntity<String>(new JSONSerializer()
 				.exclude("*.class")
 				.include("resourcePropertyValues")
@@ -61,20 +55,4 @@ public class ModelController {
 				.serialize(entities), responseHeaders, HttpStatus.OK);
 
 	}
-	
-	//从HQ server处获得所有的资源的信息（包括resourceprototype、resourceproperty等），存到数据库中
-	@RequestMapping(value = "/save", method = RequestMethod.GET)
-	public ResponseEntity<String> saveResources(HttpServletRequest request) {
-		HttpHeaders responseHeaders = new HttpHeaders();
-		responseHeaders.add("Content-Type", "application/json");
-		try {
-			proxy.saveResources();
-			return new ResponseEntity<String>("success", responseHeaders,
-					HttpStatus.OK);
-		} catch (IOException e) {
-			return new ResponseEntity<String>(e.getMessage(), responseHeaders,
-					HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-	}
-
 }
