@@ -55,9 +55,10 @@ Ext.define('PaaSMonitor.controller.MoniteesController', {
 				wizard.layout.setActiveItem('addvim');
 				loadMask.hide();
 			},
-			failure : function(r, operation) {
-				loadMask.hide();				
-				Ext.MessageBox.alert('错误', '无法添加物理机');				
+			failure : function(response) {
+				loadMask.hide();
+				var resp = Ext.decode(response.responseText);
+				Ext.MessageBox.alert('错误', resp.message);
 			}
 		});
 
@@ -74,36 +75,33 @@ Ext.define('PaaSMonitor.controller.MoniteesController', {
 			});
 			loadMask.show();
 		}
-		var successNum = 0, failNum = 0, added = 0, requestCounter = 0;
-		var succeed = function() {
-			successNum++;
-			added++;
-			if (added == count) {
-				loadMask.hide();
-				Ext.MessageBox.alert('提示', '共添加了' + count + '个虚拟机，成功：' + successNum + '个，失败：' + failNum + '个');
-				wizard.layout.setActiveItem(0);
-				wizard.up('panel').layout.setActiveItem(0);
-			}
-		};
-		var fail = function() {
-			failNum++;
-			added++;
-			if (added == count) {
-				loadMask.hide();
-				Ext.MessageBox.alert('提示', '共添加了' + count + '个虚拟机，成功：' + successNum + '个，失败：' + failNum + '个');
-				wizard.layout.setActiveItem(0);
-				wizard.up('panel').layout.setActiveItem(0);
-			}
-		};
+		var vims = new Array();
 		for (var i = 0; i < count; i++) {
-			requestCounter++;
-			Ext.Ajax.request({
-				url : 'resources/vim',
-				method : 'POST',
-				jsonData : Ext.encode(selection[i].data),
-				success : succeed,
-				failure : fail
-			});
+			vims.push(selection[i].data);
 		}
+		Ext.Ajax.request({
+			url : 'resources/vim',
+			method : 'POST',
+			timeout : 180000,
+			jsonData : Ext.encode(vims),
+			success : function(response) {
+				loadMask.hide();
+				var resp = Ext.decode(response.responseText);
+				var num = resp.data.length;
+				var list = '';
+				for(var i =0; i< num ; i++){
+					list += resp.data[i].name + '&nbsp;';
+				}
+				wizard.layout.setActiveItem(0);
+		 		wizard.up('panel').layout.setActiveItem(0);
+				Ext.MessageBox.alert('提示', '成功添加了' + num + '个虚拟机，分别是：' + list);
+			},
+			failure : function() {
+				loadMask.hide();
+				wizard.layout.setActiveItem(0);
+		 		wizard.up('panel').layout.setActiveItem(0);
+				Ext.MessageBox.alert('提示', '出现了不可预料的错误');
+			}
+		});
 	}
 });

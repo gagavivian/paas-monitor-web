@@ -4,7 +4,7 @@ Ext.define('PaaSMonitor.view.ContentPanel', {
     requires: [
         'PaaSMonitor.view.StartPanel',
         'PaaSMonitor.view.Monitee.AddWizard',
-        'PaaSMonitor.view.ModelDefPanel',
+        'PaaSMonitor.view.ModelDef.ModelDefPanel',
         'PaaSMonitor.view.ModelView.ModelViewPanel'
     ],
 

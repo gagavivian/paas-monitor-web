@@ -1,17 +1,17 @@
 package org.seforge.monitor.web;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
-
 import org.seforge.monitor.domain.Metric;
 import org.seforge.monitor.domain.MetricTemplate;
 import org.seforge.monitor.domain.Resource;
-import org.seforge.monitor.domain.ResourcePropertyKey;
-import org.seforge.monitor.domain.ResourcePropertyValue;
-import org.seforge.monitor.domain.ResourcePrototype;
 import org.seforge.monitor.domain.Vim;
+import org.seforge.monitor.exception.DuplicateEntityException;
+import org.seforge.monitor.exception.NotMonitoredException;
 import org.seforge.monitor.extjs.JsonObjectResponse;
 import org.seforge.monitor.hqapi.HQProxy;
 import org.seforge.monitor.service.VsphereService;
@@ -44,41 +44,18 @@ public class ResourceController {
         HttpStatus returnStatus;
         JsonObjectResponse response = new JsonObjectResponse();
         try {
-        	ResourcePrototype resourcePrototype = ResourcePrototype.findResourcePrototypeByName("VMware Vsphere");
-            Resource resource = new Resource();
-            resource.setName(ip);
-            resource.setTypeId(resourcePrototype.getTypeId());
-            resource.setResourcePrototype(resourcePrototype);
-            resource.persist();
-            
-            ResourcePropertyValue ipValue = new ResourcePropertyValue();
-            ResourcePropertyKey ipKey = ResourcePropertyKey.findKey("Ip", resourcePrototype);
-            ipValue.setResourcePropertyKey(ipKey);
-            ipValue.setValue(ip);
-            ipValue.setResource(resource);
-            ipValue.persist();
-            
-            ResourcePropertyValue userValue = new ResourcePropertyValue();
-            ResourcePropertyKey userKey = ResourcePropertyKey.findKey("Username", resourcePrototype);
-            userValue.setResourcePropertyKey(userKey);
-            userValue.setValue(username);
-            userValue.setResource(resource);
-            userValue.persist();
-            
-            ResourcePropertyValue pwValue = new ResourcePropertyValue();
-            ResourcePropertyKey pwKey = ResourcePropertyKey.findKey("Ip", resourcePrototype);
-            pwValue.setResourcePropertyKey(pwKey);
-            pwValue.setValue(password);
-            pwValue.setResource(resource);
-            pwValue.persist();   
-            
-            List<Vim> vims = vsphereService.getVims(ip, username, password, resource);
-            
-            returnStatus = HttpStatus.CREATED;
-            response.setMessage(resource.getName());
-            response.setSuccess(true);
-            response.setTotal(vims.size());
-            response.setData(vims);
+        	Resource exist = Resource.findPhymByIp(ip);
+        	if(exist==null){    
+        		String phymName = "UNknown";
+                List<Vim> vims = vsphereService.getVims(ip, username, password, phymName);                
+                returnStatus = HttpStatus.CREATED;
+                response.setMessage(phymName);
+                response.setSuccess(true);
+                response.setTotal(vims.size());
+                response.setData(vims);
+        	}else{
+        		throw new DuplicateEntityException("Resource of "+ ip + " has existed!");
+        	}        	
         } catch (Exception e) {        	
         	returnStatus = HttpStatus.INTERNAL_SERVER_ERROR;        	
             response.setMessage(e.getMessage());
@@ -91,22 +68,26 @@ public class ResourceController {
     @RequestMapping(value = "/vim", method = RequestMethod.POST)
     public ResponseEntity<String> addVim(@RequestBody String json) {
     	HttpStatus returnStatus;
-    	JsonObjectResponse response = new JsonObjectResponse();
-    	Vim vim = Vim.fromJsonToVim(json);    	
-    	try {
-			Resource parent = Resource.findResource(vim.getParentId());
-			Resource result = proxy.saveResource(proxy.getPlatformResource(vim.getIp(), true, true), parent, true);
-			returnStatus = HttpStatus.OK;
-            response.setMessage("Vim saved successfully");
-            response.setSuccess(true);
-            response.setTotal(1);
-            response.setData(result);
-		} catch (IOException e) {
-			returnStatus = HttpStatus.INTERNAL_SERVER_ERROR;
-            response.setMessage("Cannot find vim resource.");
-            response.setSuccess(false);
-            response.setTotal(0L);
-		}
+    	JsonObjectResponse response = new JsonObjectResponse();    	
+    	Collection<Vim> vims = Vim.fromJsonArrayToVims(json);
+    	List<Resource> added = new ArrayList<Resource>();    	
+    	for(Vim vim : vims){
+    		Resource parent = Resource.findResource(vim.getParentId());
+			org.hyperic.hq.hqapi1.types.Resource vimResource;
+			try {
+				vimResource = proxy.getVimResource(vim.getIp(), true, true);
+				Resource result = proxy.saveResource(vimResource, parent, true);
+				added.add(result);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}			
+    	}
+    	returnStatus = HttpStatus.OK;
+        response.setMessage("Vim saved successfully");
+        response.setSuccess(true);
+        response.setTotal(added.size());
+        response.setData(added);
         return new ResponseEntity<String>(new JSONSerializer().exclude("*.class").transform(new DateTransformer("MM/dd/yy"), Date.class).serialize(response), returnStatus);
 
     }

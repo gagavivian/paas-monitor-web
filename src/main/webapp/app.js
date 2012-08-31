@@ -1,36 +1,23 @@
 Ext.Loader.setConfig({
-    enabled: true
+	enabled : true
 });
 
 Ext.application({
-    models: [
-        'Resource',
-        'ResourcePrototype',
-        'ResourcePropertyKey',
-        'ResourcePropertyValue'
-    ],
-    stores: [
-        'MenuStore',           
-        'Vim'
-    ],
-    autoCreateViewport: true,
-    name: 'PaaSMonitor',
-    controllers: [
-        'MenuController',
-        'MoniteesController',
-        'ModelController'
-    ],
+	models : ['Resource', 'ResourcePrototype', 'ResourcePropertyKey', 'ResourcePropertyValue'],
+	stores : ['MenuStore', 'Vim'],
+	autoCreateViewport : true,
+	name : 'PaaSMonitor',
+	controllers : ['MenuController', 'MoniteesController', 'ModelDefController', 'ModelViewController'],
 
-    launch: function() {
-        var hideMask = function () {
-            Ext.get('loading').remove();
-            Ext.fly('loading-mask').animate({
-                opacity:0,
-                remove:true                
-            });
-        };
+	launch : function() {
+		var hideMask = function() {
+			Ext.get('loading').remove();
+			Ext.fly('loading-mask').animate({
+				opacity : 0,
+				remove : true
+			});
+		};
 
-        Ext.defer(hideMask, 200);
-    }
-
+		Ext.defer(hideMask, 200);
+	}
 });

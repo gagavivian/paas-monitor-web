@@ -16,8 +16,7 @@ Ext.define('PaaSMonitor.controller.MenuController', {
     init: function(application) {
         this.control({
             'navigation dataview': {
-                selectionchange: this.switchView,
-                itemclick: this.resetAddMonitee
+                selectionchange: this.switchView                
             }
 
         });
@@ -27,12 +26,6 @@ Ext.define('PaaSMonitor.controller.MenuController', {
         if(selected.length > 0){
             var index = selected[0].data.id;
             this.getContentPanel().layout.setActiveItem(index);
-        }
-    },
-    
-    resetAddMonitee: function(view, record) {
-        if(record.id == 1){
-        	this.getContentPanel().layout.setActiveItem(1);        	
         }
     }
 

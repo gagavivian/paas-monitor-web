@@ -58,64 +58,9 @@ function saveModel(editor) {
 
 
 
-function createMoniteeStyleObject(image) {
-	style = new Object();
-	style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_SWIMLANE;
-	style[mxConstants.STYLE_PERIMETER] = mxPerimeter.RectanglePerimeter;
-	style[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_CENTER;
-	style[mxConstants.STYLE_VERTICAL_ALIGN] = mxConstants.ALIGN_TOP;
-	style[mxConstants.STYLE_GRADIENTCOLOR] = '#41B9F5';
-	style[mxConstants.STYLE_FILLCOLOR] = '#8CCDF5';
-	style[mxConstants.STYLE_STROKECOLOR] = '#1B78C8';
-	style[mxConstants.STYLE_FONTCOLOR] = '#000000';
-	style[mxConstants.STYLE_STROKEWIDTH] = '2';
-	style[mxConstants.STYLE_STARTSIZE] = '28';
-	style[mxConstants.STYLE_VERTICAL_ALIGN] = 'middle';
-	style[mxConstants.STYLE_FONTSIZE] = '12';
-	style[mxConstants.STYLE_FONTSTYLE] = 1;
-	style[mxConstants.STYLE_IMAGE] = image;
-	// Looks better without opacity if shadow is enabled
-	//style[mxConstants.STYLE_OPACITY] = '80';
-	style[mxConstants.STYLE_SHADOW] = 1;
-	return style;
-}
 
-function configureStylesheet(graph) {
-	var style = new Object();
-	style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_RECTANGLE;
-	style[mxConstants.STYLE_PERIMETER] = mxPerimeter.RectanglePerimeter;
-	style[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_LEFT;
-	style[mxConstants.STYLE_VERTICAL_ALIGN] = mxConstants.ALIGN_MIDDLE;
-	style[mxConstants.STYLE_FONTCOLOR] = '#000000';
-	style[mxConstants.STYLE_FONTSIZE] = '11';
-	style[mxConstants.STYLE_FONTSTYLE] = 0;
-	style[mxConstants.STYLE_SPACING_LEFT] = '4';
-	style[mxConstants.STYLE_IMAGE_WIDTH] = '48';
-	style[mxConstants.STYLE_IMAGE_HEIGHT] = '48';
-	graph.getStylesheet().putDefaultVertexStyle(style);
-	phymStyle = createMoniteeStyleObject('images/icons48/phym.png');
-	graph.getStylesheet().putCellStyle('phym', phymStyle);
-	vimStyle = createMoniteeStyleObject('images/icons48/bigvim.png');
-	graph.getStylesheet().putCellStyle('vim', vimStyle);
-	serviceStyle = createMoniteeStyleObject('images/icons48/service.png');
-	graph.getStylesheet().putCellStyle('service', serviceStyle);
-	appServerStyle = createMoniteeStyleObject('images/icons48/tomcatserver.png');
-	graph.getStylesheet().putCellStyle('appServer', appServerStyle);
-	appStyle = createMoniteeStyleObject('images/icons48/app.png');
-	graph.getStylesheet().putCellStyle('app', appStyle);
-	appInstanceStyle = createMoniteeStyleObject('images/icons48/appInstance.png');
-	graph.getStylesheet().putCellStyle('appInstance', appInstanceStyle);
-	paasUserStyle = createMoniteeStyleObject('images/icons48/paasUser.png');
-	graph.getStylesheet().putCellStyle('paasUser', paasUserStyle);
-	style = graph.stylesheet.getDefaultEdgeStyle();
-	style[mxConstants.STYLE_LABEL_BACKGROUNDCOLOR] = '#FFFFFF';
-	style[mxConstants.STYLE_STROKEWIDTH] = '2';
-	style[mxConstants.STYLE_ROUNDED] = true;
-	style[mxConstants.STYLE_ENDARROW] = mxConstants.NONE;
 
-	// style[mxConstants.STYLE_EDGE] = mxEdgeStyle.EntityRelation;
 
-};
 
 // Function to create the entries in the popupmenu
 function createPopupMenu(editor, graph, menu, cell, evt) {
