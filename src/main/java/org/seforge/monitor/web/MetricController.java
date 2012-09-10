@@ -1,8 +1,11 @@
 package org.seforge.monitor.web;
 
 import java.util.Date;
+import java.util.List;
+
 import org.hyperic.hq.hqapi1.types.LastMetricData;
 import org.seforge.monitor.domain.Metric;
+import org.seforge.monitor.domain.ResourcePrototype;
 import org.seforge.monitor.extjs.JsonObjectResponse;
 import org.seforge.monitor.hqapi.HQProxy;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +26,8 @@ public class MetricController {
 	@Autowired
 	private HQProxy proxy;
 	
+	
+	//thd PathVariable id is the id of a metric
     @RequestMapping(value = "/{id}/lastmetricdata", method = RequestMethod.GET)
     public ResponseEntity<String> listLastMetricData(@PathVariable("id") Integer id) {
     	HttpStatus returnStatus;
@@ -50,4 +55,39 @@ public class MetricController {
     	}        
         return new ResponseEntity<String>(new JSONSerializer().exclude("*.class").transform(new DateTransformer("MM/dd/yy"), Date.class).serialize(response), returnStatus);
     }
+    
+    
+  //thd PathVariable id is the id of a resourcePrototype
+   
+    @RequestMapping(value = "/{id}/all", method = RequestMethod.GET)
+    public ResponseEntity<String> listAllMetrics(@PathVariable("id") Integer id) {
+    	HttpStatus returnStatus;
+    	JsonObjectResponse response = new JsonObjectResponse();
+    	if( id == null){
+    		returnStatus = HttpStatus.BAD_REQUEST;
+            response.setMessage("No ResourcePrototype Id provided.");
+            response.setSuccess(false);
+            response.setTotal(0L);
+    	}else{
+    		try {
+                ResourcePrototype prototype = ResourcePrototype.findResourcePrototype(id);
+                List data = proxy.getMetricTemplatesByResourcePrototype(prototype.getName());     
+                returnStatus = HttpStatus.OK;
+                response.setMessage("All Metric Templates found");
+                response.setSuccess(true);
+                response.setTotal(data.size());
+                response.setData(data);
+            } catch (Exception e) {
+            	returnStatus = HttpStatus.INTERNAL_SERVER_ERROR;
+                response.setMessage(e.getMessage());
+                response.setSuccess(false);
+                response.setTotal(0L);
+            }
+    	}        
+        return new ResponseEntity<String>(new JSONSerializer().exclude("*.class").transform(new DateTransformer("MM/dd/yy"), Date.class).serialize(response), returnStatus);
+    }
+    
+    
+    
+    
 }

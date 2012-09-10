@@ -62,44 +62,6 @@ function saveModel(editor) {
 
 
 
-// Function to create the entries in the popupmenu
-function createPopupMenu(editor, graph, menu, cell, evt) {
-	if(cell != null) {
-		if(graph.isHtmlLabel(cell)) {
-			menu.addItem('Properties', 'images/properties.gif', function() {
-				editor.execute('properties', cell);
-			});
-			if(cell.value.category == 'Monitor') {
-				menu.addItem('Mapping', 'images/properties.gif', function() {
-					editor.execute('mapping', cell);
-				});
-			}
-
-			menu.addSeparator();
-
-		} else {
-			menu.addItem('Add Attribute', 'images/plus.png', function() {
-				editor.execute('add', cell);
-			});
-
-			menu.addSeparator();
-		}
-
-		menu.addItem('Delete', 'images/delete2.png', function() {
-			editor.execute('delete', cell);
-		});
-
-		menu.addSeparator();
-	}
-
-	menu.addItem('Undo', 'images/undo.png', function() {
-		editor.execute('undo', cell);
-	});
-
-	menu.addItem('Redo', 'images/redo.png', function() {
-		editor.execute('redo', cell);
-	});
-};
 
 function addAttribute(graph, cell, attributePro) {
 	if(addAttributeWin == null) {

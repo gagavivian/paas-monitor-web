@@ -9,10 +9,7 @@ Ext.define('PaaSMonitor.model.Resource', {
         },
         {
             name: 'name'
-        },
-        {
-            name: 'ip'
-        },
+        },        
         {
             name: 'typeId'
         },

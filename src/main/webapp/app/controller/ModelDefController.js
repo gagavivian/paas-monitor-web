@@ -1,11 +1,17 @@
 Ext.define('PaaSMonitor.controller.ModelDefController', {
 	extend : 'Ext.app.Controller',
 
-	views : ['ModelDef.ModelDefPanel'],
+	views : ['ModelDef.ModelDefPanel', 'ModelDef.MetricTemplateWindow'],
 
 	refs : [{
 		ref : 'defPanel',
 		selector : 'modeldefpanel'
+	}, {
+		ref : 'templateWindow',
+		selector : 'templatewindow',
+		//此处一定要加xtype，否则无法创建出正确的component类型
+		xtype : 'templatewindow',
+		autoCreate : true
 	}],
 
 	init : function(application) {
@@ -291,16 +297,16 @@ Ext.define('PaaSMonitor.controller.ModelDefController', {
 		};
 		// Installs a popupmenu handler using local function (see below).
 		graph.panningHandler.factoryMethod = function(menu, cell, evt) {
-			createPopupMenu(editor, graph, menu, cell, evt);
+			controller.createPopupMenu(editor, graph, menu, cell, evt);
 		};
 		// Adds all required styles to the graph (see below)
 		this.configureDefStylesheet(graph);
 
 		// Adds sidebar icon for each object
-		var attributeObject = new Attribute('ATTRIBUTENAME');
-		var attribute = new mxCell(attributeObject, new mxGeometry(0, 0, 0, 26));
-		attribute.setVertex(true);
-		attribute.setConnectable(false);
+		// var attributeObject = new Attribute('ATTRIBUTENAME');
+		// var attribute = new mxCell(attributeObject, new mxGeometry(0, 0, 0, 26));
+		// attribute.setVertex(true);
+		// attribute.setConnectable(false);
 
 		var phymPrototype = Ext.create('PaaSMonitor.model.ResourcePrototype', {
 			id : 1,
@@ -310,7 +316,6 @@ Ext.define('PaaSMonitor.controller.ModelDefController', {
 		phym.setVertex(true);
 		this.addSidebarIcon(graph, sidebar, phym, 'images/icons48/phym.png');
 
-		
 		var vimPrototype = Ext.create('PaaSMonitor.model.ResourcePrototype', {
 			id : 2,
 			name : 'Win32'
@@ -318,7 +323,6 @@ Ext.define('PaaSMonitor.controller.ModelDefController', {
 		var vim = new mxCell(vimPrototype.data, new mxGeometry(0, 0, 200, 54), 'vim');
 		vim.setVertex(true);
 		this.addSidebarIcon(graph, sidebar, vim, 'images/icons48/bigvim.png');
-		
 
 		var platformServicePrototype = Ext.create('PaaSMonitor.model.ResourcePrototype', {
 			id : 3,
@@ -327,7 +331,6 @@ Ext.define('PaaSMonitor.controller.ModelDefController', {
 		var platformService = new mxCell(platformServicePrototype.data, new mxGeometry(0, 0, 200, 54), 'service');
 		platformService.setVertex(true);
 		this.addSidebarIcon(graph, sidebar, platformService, 'images/icons48/service.png');
-		
 
 		var appServerPrototype = Ext.create('PaaSMonitor.model.ResourcePrototype', {
 			id : 4,
@@ -336,8 +339,7 @@ Ext.define('PaaSMonitor.controller.ModelDefController', {
 		var appServer = new mxCell(appServerPrototype.data, new mxGeometry(0, 0, 200, 54), 'appServer');
 		appServer.setVertex(true);
 		this.addSidebarIcon(graph, sidebar, appServer, 'images/icons48/appserver.png');
-		
-		
+
 		var appPrototype = Ext.create('PaaSMonitor.model.ResourcePrototype', {
 			id : 1,
 			name : 'VMware Vsphere'
@@ -345,7 +347,6 @@ Ext.define('PaaSMonitor.controller.ModelDefController', {
 		var app = new mxCell(appPrototype.data, new mxGeometry(0, 0, 200, 54), 'app');
 		app.setVertex(true);
 		this.addSidebarIcon(graph, sidebar, app, 'images/icons48/app.png');
-		
 
 		var appInstancePrototype = Ext.create('PaaSMonitor.model.ResourcePrototype', {
 			id : 1,
@@ -354,7 +355,6 @@ Ext.define('PaaSMonitor.controller.ModelDefController', {
 		var appInstance = new mxCell(appInstancePrototype.data, new mxGeometry(0, 0, 200, 54), 'appInstance');
 		appInstance.setVertex(true);
 		this.addSidebarIcon(graph, sidebar, appInstance, 'images/icons48/appInstance.png');
-		
 
 		var paasUserPrototype = Ext.create('PaaSMonitor.model.ResourcePrototype', {
 			id : 1,
@@ -363,7 +363,6 @@ Ext.define('PaaSMonitor.controller.ModelDefController', {
 		var paasUser = new mxCell(paasUserPrototype.data, new mxGeometry(0, 0, 200, 54), 'paasUser');
 		paasUser.setVertex(true);
 		this.addSidebarIcon(graph, sidebar, paasUser, 'images/icons48/paasUser.png');
-		
 
 		// Creates a new DIV that is used as a toolbar and adds
 		// toolbar buttons.
@@ -385,7 +384,7 @@ Ext.define('PaaSMonitor.controller.ModelDefController', {
 		});
 
 		editor.addAction('add', function(editor, cell) {
-			addAttribute(graph, cell, attribute);
+			controller.showMetricList(graph, cell);
 		});
 
 		editor.addAction('mapping', function(editor, cell) {
@@ -463,6 +462,7 @@ Ext.define('PaaSMonitor.controller.ModelDefController', {
 
 	},
 
+	//定义各个cell的style
 	configureDefStylesheet : function(graph) {
 		var style = new Object();
 		style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_RECTANGLE;
@@ -500,6 +500,7 @@ Ext.define('PaaSMonitor.controller.ModelDefController', {
 
 	},
 
+	//创建基本的styleObject
 	createDefStyleObject : function(image) {
 		style = new Object();
 		style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_SWIMLANE;
@@ -535,7 +536,8 @@ Ext.define('PaaSMonitor.controller.ModelDefController', {
 			var model = graph.getModel();
 
 			var isTable = graph.isSwimlane(prototype);
-			var name = null; {graph.model.getChildCount(parent) + 1;
+			var name = null;
+			{graph.model.getChildCount(parent) + 1;
 			}
 
 			var v1 = model.cloneCell(prototype);
@@ -619,4 +621,49 @@ Ext.define('PaaSMonitor.controller.ModelDefController', {
 		mxUtils.write(button, label);
 		toolbar.appendChild(button);
 	},
+
+	// Function to create the entries in the popupmenu
+	createPopupMenu : function(editor, graph, menu, cell, evt) {
+		if (cell != null) {
+			if (graph.isHtmlLabel(cell)) {
+				menu.addItem('Properties', 'images/properties.gif', function() {
+					editor.execute('properties', cell);
+				});
+				if (cell.value.category == 'Monitor') {
+					menu.addItem('Mapping', 'images/properties.gif', function() {
+						editor.execute('mapping', cell);
+					});
+				}
+
+				menu.addSeparator();
+
+			} else {
+				menu.addItem('Add Monitoring Metric', 'images/plus.png', function() {
+					editor.execute('add', cell);
+				});
+
+				menu.addSeparator();
+			}
+
+			menu.addItem('Delete', 'images/delete2.png', function() {
+				editor.execute('delete', cell);
+			});
+
+			menu.addSeparator();
+		}
+
+		menu.addItem('Undo', 'images/undo.png', function() {
+			editor.execute('undo', cell);
+		});
+
+		menu.addItem('Redo', 'images/redo.png', function() {
+			editor.execute('redo', cell);
+		});
+	},
+	
+	
+	showMetricList : function(graph, cell){
+		//需要在ModelView.MetricWindow中加入内容
+		this.getTemplateWindow().show();
+	}
 });

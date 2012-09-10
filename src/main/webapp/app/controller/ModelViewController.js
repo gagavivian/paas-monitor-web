@@ -52,7 +52,7 @@ Ext.define('PaaSMonitor.controller.ModelViewController', {
 
 		var hierarchicalLayout = new mxHierarchicalLayout(graph, mxConstants.DIRECTION_WEST);
 		hierarchicalLayout.intraCellSpacing = 50;
-		hierarchicalLayout.interRankCellSpacing = 80;
+		hierarchicalLayout.interRankCellSpacing = 80;		
 
 		var parent = graph.getDefaultParent();
 
@@ -61,6 +61,9 @@ Ext.define('PaaSMonitor.controller.ModelViewController', {
 			// if(cell.value != null && cell.value.httpPort != null) {
 			// return cell.value.httpPort + ':' + cell.value.status;
 			// }
+			if (cell.value != null && cell.value.name != null) {
+				return cell.value.name;
+			}
 			if (cell.value != null && cell.value.ip != null) {
 				return cell.value.ip;
 			}
@@ -111,6 +114,8 @@ Ext.define('PaaSMonitor.controller.ModelViewController', {
 			return false;
 		};
 
+
+		//添加监听双击操作的listener
 		graph.addListener(mxEvent.DOUBLE_CLICK, function(sender, evt) {
 			var cell = evt.getProperty('cell');
 			if (cell.isVertex()) {
@@ -119,7 +124,7 @@ Ext.define('PaaSMonitor.controller.ModelViewController', {
 				if (children.length === 0) {
 					controller.expandChildren(this, cell);
 					//这个地方的layout到底如何设置，还需要进一步完善
-					hierarchicalLayout.execute(parent);
+					//hierarchicalLayout.execute(parent);
 				} else {
 					controller.foldChildren(this, cell);
 				}
@@ -185,7 +190,7 @@ Ext.define('PaaSMonitor.controller.ModelViewController', {
 		graph.getModel().beginUpdate();
 		try {
 			controller.parseModelData(graph, modelData);
-			hierarchicalLayout.execute(parent);
+			treeLayout.execute(parent);
 		} finally {
 			graph.getModel().endUpdate();
 		}
@@ -198,6 +203,11 @@ Ext.define('PaaSMonitor.controller.ModelViewController', {
 				menu.addItem('Show Monitoring Statistics', 'images/properties.gif', function() {
 					//editor.execute('metric', cell);
 					controller.showMetrics();
+				});
+				
+				menu.addItem('Adjust Layout', 'images/properties.gif', function() {
+					//editor.execute('metric', cell);
+					controller.adjustLayout(graph, cell);
 				});
 				// menu.addSeparator();
 
@@ -219,12 +229,19 @@ Ext.define('PaaSMonitor.controller.ModelViewController', {
 		//需要在ModelView.MetricWindow中加入内容
 		this.getMetricWindow().show();
 	},
+	
+	adjustLayout : function(graph, root){
+		var treeLayout = new mxCompactTreeLayout(graph);
+		treeLayout.intraCellSpacing = 50;
+		treeLayout.execute(root);
+	},
 
 	parseModelData : function(graph, modelData) {
 		var parent = graph.getDefaultParent();
+		var space = 100;
 		for (var i = 0; i < modelData.length; i++) {
-			var osObject = Ext.create('PaaSMonitor.model.Resource', modelData[i]);
-			var os = graph.insertVertex(parent, osObject.ip, osObject.data, 0, 0, 48, 48, 'Vim');
+			var phymObject = Ext.create('PaaSMonitor.model.Resource', modelData[i]);
+			var phym = graph.insertVertex(parent, phymObject.name, phymObject.data, 30, space*i, 48, 48, 'Phym');
 			//            this.expandChildren(graph, os, null, 'Vim');
 		}
 	},
@@ -314,19 +331,22 @@ Ext.define('PaaSMonitor.controller.ModelViewController', {
 					try {
 						for (var i = 0; i < children.length; i++) {
 							//操作系统的服务和服务组件不在此显示
-							if (children[i].typeId != 3 && children[i].typeId != 4) {
-								var childObject = Ext.create('PaaSMonitor.model.Resource', children[i]);
-								var child = graph.insertVertex(cell, childObject.get('name'), childObject.data, 0, 0, 48, 48, controller.getTypeString(childObject.get('typeId')));
-								var root = graph.getDefaultParent();
-								var parent_to_child = graph.insertEdge(root, null, '', cell, child);
-							}
+							var typeId = children[i].typeId;
+							var type = controller.getTypeString(typeId);
+							var childObject = Ext.create('PaaSMonitor.model.Resource', children[i]);
+							var child = graph.insertVertex(cell, childObject.get('name'), childObject.data, 0, 0, 48, 48, type);
+							var root = graph.getDefaultParent();
+							var parent_to_child = graph.insertEdge(root, null, '', cell, child);							
 						}
-					} finally {
-						graph.getModel().endUpdate();
+						
+					} finally {						
+						graph.getModel().endUpdate();						
 					}
-				} else {
+				}else {
 					//没有子节点
 				}
+				//此处调整layout不起作用，待修改
+				controller.adjustLayout(graph, cell);
 			},
 			failure : function(response) {
 				Ext.MessageBox.alert('错误', '无法加载子节点');
@@ -349,6 +369,8 @@ Ext.define('PaaSMonitor.controller.ModelViewController', {
 				return 'Phym';
 			case 2:
 				return 'Vim';
+			case 3:
+				return 'AppServer';
 			case 5:
 				return 'AppServer';
 			case 7:

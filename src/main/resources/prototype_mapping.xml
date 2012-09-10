@@ -60,4 +60,60 @@
 		<name>Apache Tomcat 5.5</name>
 		<type>5</type>
 	</prototype>
+	<prototype>
+		<name>Apache Tomcat 6.0</name>
+		<type>5</type>
+	</prototype>
+	<prototype>
+		<name>Apache Tomcat 6.0 Servlet Monitor</name>
+		<type>6</type>
+	</prototype>
+	<prototype>
+		<name>Apache Tomcat 6.0 Thread Pools</name>
+		<type>6</type>
+	</prototype>
+	<prototype>
+		<name>Apache Tomcat 6.0 Web Module Stats</name>
+		<type>6</type>
+	</prototype>
+	<prototype>
+		<name>Apache Tomcat 6.0 Cache</name>
+		<type>6</type>
+	</prototype>
+	<prototype>
+		<name>Apache Tomcat 6.0 Global Request Processor</name>
+		<type>6</type>
+	</prototype>
+	<prototype>
+		<name>Apache Tomcat 6.0 JSP Monitor</name>
+		<type>6</type>
+	</prototype>
+	<prototype>
+		<name>Apache Tomcat 6.0 DataSource Pool</name>
+		<type>6</type>
+	</prototype>	
+	<prototype>
+		<name>Apache Tomcat 7.0</name>
+		<type>5</type>
+	</prototype>
+	<prototype>
+		<name>Apache Tomcat 7.0 Servlet Monitor</name>
+		<type>6</type>
+	</prototype>
+	<prototype>
+		<name>Apache Tomcat 7.0 Thread Pools</name>
+		<type>6</type>
+	</prototype>
+	<prototype>
+		<name>Apache Tomcat 7.0 Web Module Stats</name>
+		<type>6</type>
+	</prototype>	
+	<prototype>
+		<name>Apache Tomcat 6.0 Global Request Processor</name>
+		<type>6</type>
+	</prototype>
+	<prototype>
+		<name>Apache Tomcat 7.0 JSP Monitor</name>
+		<type>6</type>
+	</prototype>	
 </prototypes>
