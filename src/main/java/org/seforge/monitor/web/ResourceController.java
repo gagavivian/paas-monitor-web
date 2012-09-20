@@ -122,32 +122,5 @@ public class ResourceController {
     }
     
     
-    @RequestMapping(value = "/{id}/metrics", method = RequestMethod.GET)
-    public ResponseEntity<String> listMetrics(@PathVariable("id") Integer id) {
-    	HttpStatus returnStatus;
-    	JsonObjectResponse response = new JsonObjectResponse();
-    	if( id == null){
-    		returnStatus = HttpStatus.BAD_REQUEST;
-            response.setMessage("No Resource Id provided.");
-            response.setSuccess(false);
-            response.setTotal(0L);
-    	}else{
-    		try {
-                Resource resource = Resource.findResource(id);
-                Set<Metric> metrics = resource.getMetrics();           
-                returnStatus = HttpStatus.OK;
-                response.setMessage("Metric Templates found");
-                response.setSuccess(true);
-                response.setTotal(metrics.size());
-                response.setData(metrics);
-            } catch (Exception e) {
-            	returnStatus = HttpStatus.INTERNAL_SERVER_ERROR;
-                response.setMessage(e.getMessage());
-                response.setSuccess(false);
-                response.setTotal(0L);
-            }
-    	}        
-        return new ResponseEntity<String>(new JSONSerializer().exclude("*.class").transform(new DateTransformer("MM/dd/yy"), Date.class).serialize(response), returnStatus);
-    }
-
+ 
 }
