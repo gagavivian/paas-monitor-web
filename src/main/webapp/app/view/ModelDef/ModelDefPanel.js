@@ -11,7 +11,8 @@ Ext.define('PaaSMonitor.view.ModelDef.ModelDefPanel', {
 
     initComponent: function() {
         var me = this;
-
+        
+        
         Ext.applyIf(me, {
             items: [
                 {
@@ -49,6 +50,7 @@ Ext.define('PaaSMonitor.view.ModelDef.ModelDefPanel', {
                 }
             ]
         });
+        
 
         me.callParent(arguments);
     }

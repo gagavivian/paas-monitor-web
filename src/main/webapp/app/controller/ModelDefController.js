@@ -664,6 +664,29 @@ Ext.define('PaaSMonitor.controller.ModelDefController', {
 	
 	showMetricList : function(graph, cell){
 		//需要在ModelView.MetricWindow中加入内容
-		this.getTemplateWindow().show();
+		
+		// var url = '/metrics/' + cell.value.getAttributes('id') + '/all';
+		var _url = 'metrics/2/all';
+		
+		var _templateWindow = this.getTemplateWindow();
+		var _grid = _templateWindow.items.first();
+		
+		var _store = _grid.getStore();
+		
+		_store.setProxy({
+			type: 'ajax',
+			method: 'get',
+			url: _url,
+			reader: {
+				type: 'json',
+				root: 'data'
+			}
+		});
+		
+		_store.load({
+			params:{}
+		});
+		
+		_templateWindow.show();
 	}
 });

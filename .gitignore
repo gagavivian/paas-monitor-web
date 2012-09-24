@@ -6,3 +6,9 @@ target
 bin
 tmp
 log.roo
+src/main/webapp/index-test.html
+src/main/webapp/log.txt
+*.bak
+src/main/webapp/ext-all-debug.js
+src/main/webapp/resources/css/ext-all.css
+src/main/webapp/resources/themes/
