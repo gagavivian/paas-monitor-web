@@ -666,7 +666,7 @@ Ext.define('PaaSMonitor.controller.ModelDefController', {
 		//需要在ModelView.MetricWindow中加入内容
 		
 		// var url = '/metrics/' + cell.value.getAttributes('id') + '/all';
-		var _url = 'metrics/2/all';
+		var _url = 'metrics/all';
 		
 		var _templateWindow = this.getTemplateWindow();
 		var _grid = _templateWindow.items.first();
@@ -684,7 +684,13 @@ Ext.define('PaaSMonitor.controller.ModelDefController', {
 		});
 		
 		_store.load({
-			params:{}
+			params:{
+				start:0,
+				limit:10,
+				pageSize: 10,
+				groupId: 1,
+				resourcePrototypeId: cell.value.id
+			}
 		});
 		
 		_templateWindow.show();
