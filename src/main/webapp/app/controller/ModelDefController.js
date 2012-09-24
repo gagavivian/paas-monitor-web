@@ -1,7 +1,7 @@
 Ext.define('PaaSMonitor.controller.ModelDefController', {
 	extend : 'Ext.app.Controller',
 
-	views : ['ModelDef.ModelDefPanel', 'ModelDef.MetricTemplateWindow'],
+	views : ['ModelDef.ModelDefPanel', 'ModelDef.MetricUpdateWindow'],
 
 	refs : [{
 		ref : 'defPanel',
@@ -679,19 +679,22 @@ Ext.define('PaaSMonitor.controller.ModelDefController', {
 			url: _url,
 			reader: {
 				type: 'json',
-				root: 'data'
-			}
-		});
-		
-		_store.load({
-			params:{
+				root: 'data'				
+			},
+			extraParams:{
+				/*
 				start:0,
 				limit:10,
+				
+				*/
 				pageSize: 10,
 				groupId: 1,
 				resourcePrototypeId: cell.value.id
 			}
+			
 		});
+		
+		_store.load();
 		
 		_templateWindow.show();
 	}

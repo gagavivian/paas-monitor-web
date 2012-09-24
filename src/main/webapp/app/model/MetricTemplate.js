@@ -1,7 +1,7 @@
-Ext.define('PaaSMonitor.model.MetricTemplateModel', {
+Ext.define('PaaSMonitor.model.MetricTemplate', {
     extend: 'Ext.data.Model',
 
-    idProperty: 'MetricTemplateModel',
+    idProperty: 'id',
     
     fields: [
         {

@@ -5,7 +5,7 @@ Ext.Loader.setConfig({
 Ext.application({
 	models : [
 			'Resource', 'ResourcePrototype', 'ResourcePropertyKey', 'ResourcePropertyValue',
-			'MetricTemplateModel', 'MetricModel'
+			'MetricTemplate', 'Metric'
 	],
 	stores : ['MenuStore', 'Vim', 'MetricTemplateStore', 'MetricStore'],
 	autoCreateViewport : true,

@@ -2,7 +2,7 @@ Ext.define('PaaSMonitor.store.MetricTemplateStore', {
     extend: 'Ext.data.Store',
     
     requires: [
-               'PaaSMonitor.store.MetricTemplateModel'
+               'PaaSMonitor.model.MetricTemplate'
     ],
 
     constructor: function(cfg) {
@@ -11,7 +11,7 @@ Ext.define('PaaSMonitor.store.MetricTemplateStore', {
         me.callParent([Ext.apply({
             autoLoad: true,
             storeId: 'MetricTemplateStore',
-            model: 'PaaSMonitor.model.MetricTemplateModel',
+            model: 'PaaSMonitor.model.MetricTemplate',
             pageSize: 10,	
             proxy: {
                 type: 'ajax',

@@ -26,7 +26,7 @@ Ext.define('PaaSMonitor.view.ModelDef.MetricUpdateWindow', {
         var grid = Ext.create('Ext.grid.Panel', {
     		store: Ext.data.StoreManager.lookup('MetricStore'),
 			columns:[{
-				header: '名称',  dataIndex: 'metricTemplate.name' 
+				header: '名称',  dataIndex: 'templateName' 
 				},{
 				header: '间隔/ms', dataIndex: 'interval', 
 				format: '0,000',
@@ -36,7 +36,7 @@ Ext.define('PaaSMonitor.view.ModelDef.MetricUpdateWindow', {
 					allowblank: false
 					}
 				},{
-				header: '单位', dataIndex: 'metricTemplate.units' 
+				header: '单位', dataIndex: 'templateUnits' 
 			}],
 			selType: 'checkboxmodel',
         	multiSelect: true,
@@ -61,7 +61,7 @@ Ext.define('PaaSMonitor.view.ModelDef.MetricUpdateWindow', {
         	text: '生成Metric',
         	handler: function() {
         		var sm = grid.getSelectionModel();
-        		var selectedItems = sm.getSelectoin();
+        		var selectedItems = sm.getSelection();
         		var _templates = Ext.encode(selectedItems);
         		Ext.Ajax.request({
         			url: 'generate_metric',

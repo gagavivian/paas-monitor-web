@@ -65,7 +65,8 @@ public class MetricController {
   //thd PathVariable id is the id of a resourcePrototype
    
     @RequestMapping(value = "/all", method = RequestMethod.GET)
-    public ResponseEntity<String> listAllMetrics(@RequestParam("groupId") Integer groupId, @RequestParam("resourcePrototypeId") Integer resourcePrototypeId) {
+    public ResponseEntity<String> listAllMetrics(@RequestParam("groupId") Integer groupId, @RequestParam("resourcePrototypeId") Integer resourcePrototypeId,
+    		@RequestParam("start") Integer start, @RequestParam("limit") Integer limit ) {
     	HttpStatus returnStatus;
     	JsonObjectResponse response = new JsonObjectResponse();
     	if( groupId == null){
@@ -77,11 +78,12 @@ public class MetricController {
     		try {
                 ResourcePrototype prototype = ResourcePrototype.findResourcePrototype(resourcePrototypeId);
                 ResourceGroup group = ResourceGroup.findResourceGroup(groupId);
-                List data = metricManager.getMetricsByResourcePrototypeAndGroup(prototype, group, 0, 10);     
+                List total = metricManager.getMetricsByResourcePrototypeAndGroup(prototype, group);
+                List data = metricManager.getMetricsByResourcePrototypeAndGroup(prototype, group, start, limit);     
                 returnStatus = HttpStatus.OK;
                 response.setMessage("All Metric Templates found");
                 response.setSuccess(true);
-                response.setTotal(data.size());
+                response.setTotal(total.size());
                 response.setData(data);
             } catch (Exception e) {
             	returnStatus = HttpStatus.INTERNAL_SERVER_ERROR;
