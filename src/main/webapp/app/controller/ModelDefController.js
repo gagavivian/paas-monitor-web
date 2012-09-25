@@ -16,9 +16,10 @@ Ext.define('PaaSMonitor.controller.ModelDefController', {
 
 	init : function(application) {
 		this.control({
-			'modeldefpanel' : {
+			/*'modeldefpanel' : {
 				activate : this.loadModelDef
 			}
+			*/
 		});
 
 		if (!mxClient.isBrowserSupported()) {

@@ -62,18 +62,24 @@ Ext.define('PaaSMonitor.view.ModelDef.MetricUpdateWindow', {
         	handler: function() {
         		var sm = grid.getSelectionModel();
         		var selectedItems = sm.getSelection();
-        		var _templates = Ext.encode(selectedItems);
+        		var data = new Array;
+        		for(var i=0; i< selectedItems.length; i++){
+        			data.push(selectedItems[i].getData());
+        		}
+        		var _templates = Ext.encode(data);
         		Ext.Ajax.request({
-        			url: 'generate_metric',
+        			url: 'generate_metrics',
         			params: {
         				groupId: 1,
-        				templates: _templates
+        				resourcePrototypeId: 2,
+        				metrics: _templates
         			}, 
         			success: function() {
         				Ext.Msg.alert('成功', '生成Metric成功过！');
+        				me.hide();
         			},
         			failure: function(response) {
-        				Ext.Msg.alert('失败', respon.responseText);
+        				Ext.Msg.alert('失败', response.responseText);
         			}
         		});
         	}

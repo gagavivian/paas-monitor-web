@@ -38,7 +38,7 @@ public class GenerateMetric {
     
   //thd PathVariable id is the id of a resourcePrototype
    
-    @RequestMapping(method = RequestMethod.GET)
+    @RequestMapping(method = RequestMethod.POST)
     public ResponseEntity<String> generateMetrics(@RequestParam("groupId") Integer groupId, @RequestParam("resourcePrototypeId") Integer resourcePrototypeId, @RequestParam("metrics") String metricsJson) {
     	
     	HttpStatus returnStatus;
@@ -57,6 +57,7 @@ public class GenerateMetric {
     	    	for (int i = 0; i < len; i ++) {
     	    		metrics.get(i).setResourceGroup(ResourceGroup.findResourceGroup(groupId));
     	    		metrics.get(i).setResourcePrototype(ResourcePrototype.findResourcePrototype(resourcePrototypeId));
+    	    		metrics.get(i).setEnabled(true);    	    		
     	    	}
     	    	
     	    	metricManager.saveAndUpdateMetrics(metrics);
@@ -67,6 +68,7 @@ public class GenerateMetric {
                 response.setTotal(0L);
                 response.setData(null);
             } catch (Exception e) {
+            	e.printStackTrace();
             	returnStatus = HttpStatus.INTERNAL_SERVER_ERROR;
                 response.setMessage(e.getMessage());
                 response.setSuccess(false);
