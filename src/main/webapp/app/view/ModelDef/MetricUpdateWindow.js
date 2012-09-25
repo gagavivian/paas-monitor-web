@@ -26,7 +26,8 @@ Ext.define('PaaSMonitor.view.ModelDef.MetricUpdateWindow', {
         var grid = Ext.create('Ext.grid.Panel', {
     		store: Ext.data.StoreManager.lookup('MetricStore'),
 			columns:[{
-				header: '名称',  dataIndex: 'templateName' 
+				header: '名称',  
+				dataIndex: 'templateName' 
 				},{
 				header: '间隔/ms', dataIndex: 'interval', 
 				format: '0,000',
@@ -58,31 +59,8 @@ Ext.define('PaaSMonitor.view.ModelDef.MetricUpdateWindow', {
         me.items = [grid];
         
         var ok = Ext.create('Ext.Button', {
-        	text: '生成Metric',
-        	handler: function() {
-        		var sm = grid.getSelectionModel();
-        		var selectedItems = sm.getSelection();
-        		var data = new Array;
-        		for(var i=0; i< selectedItems.length; i++){
-        			data.push(selectedItems[i].getData());
-        		}
-        		var _templates = Ext.encode(data);
-        		Ext.Ajax.request({
-        			url: 'generate_metrics',
-        			params: {
-        				groupId: 1,
-        				resourcePrototypeId: 2,
-        				metrics: _templates
-        			}, 
-        			success: function() {
-        				Ext.Msg.alert('成功', '生成Metric成功过！');
-        				me.hide();
-        			},
-        			failure: function(response) {
-        				Ext.Msg.alert('失败', response.responseText);
-        			}
-        		});
-        	}
+        	id: 'update_metrics_button',
+        	text: '生成Metric',        	
         });
         
         var cancel = Ext.create('Ext.Button', {

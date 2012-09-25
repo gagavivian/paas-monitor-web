@@ -17,9 +17,12 @@ Ext.define('PaaSMonitor.controller.ModelDefController', {
 	init : function(application) {
 		this.control({
 			/*'modeldefpanel' : {
-				activate : this.loadModelDef
+			 activate : this.loadModelDef
+			 }
+			 */
+			'#update_metrics_button':{
+				click: this.updateMetrics
 			}
-			*/
 		});
 
 		if (!mxClient.isBrowserSupported()) {
@@ -29,6 +32,7 @@ Ext.define('PaaSMonitor.controller.ModelDefController', {
 		} else {
 			this.defEditor = this.initDefEditor(document.getElementById('modeldef_graph_container'), document.getElementById('modeldef_outline_container'), document.getElementById('modeldef_toolbar_container'), document.getElementById('modeldef_sidebar_container'), document.getElementById('modeldef_status_container'));
 		}
+		this.metric_being_updated = null;
 	},
 
 	loadModelDef : function() {
@@ -334,8 +338,8 @@ Ext.define('PaaSMonitor.controller.ModelDefController', {
 		this.addSidebarIcon(graph, sidebar, platformService, 'images/icons48/service.png');
 
 		var appServerPrototype = Ext.create('PaaSMonitor.model.ResourcePrototype', {
-			id : 4,
-			name : 'Apache Tomcat 7.0'
+			id : 11,
+			name : 'Apache Tomcat 6.0'
 		});
 		var appServer = new mxCell(appServerPrototype.data, new mxGeometry(0, 0, 200, 54), 'appServer');
 		appServer.setVertex(true);
@@ -483,7 +487,7 @@ Ext.define('PaaSMonitor.controller.ModelDefController', {
 		graph.getStylesheet().putCellStyle('vim', vimStyle);
 		serviceStyle = this.createDefStyleObject('images/icons48/service.png');
 		graph.getStylesheet().putCellStyle('service', serviceStyle);
-		appServerStyle = this.createDefStyleObject('images/icons48/tomcatserver.png');
+		appServerStyle = this.createDefStyleObject('images/icons48/appserver.png');
 		graph.getStylesheet().putCellStyle('appServer', appServerStyle);
 		appStyle = this.createDefStyleObject('images/icons48/app.png');
 		graph.getStylesheet().putCellStyle('app', appStyle);
@@ -661,42 +665,81 @@ Ext.define('PaaSMonitor.controller.ModelDefController', {
 			editor.execute('redo', cell);
 		});
 	},
-	
-	
-	showMetricList : function(graph, cell){
+
+	showMetricList : function(graph, cell) {
 		//需要在ModelView.MetricWindow中加入内容
-		
+
 		// var url = '/metrics/' + cell.value.getAttributes('id') + '/all';
+		this.metric_being_updated =  cell.value.id;
 		var _url = 'metrics/all';
-		
+
 		var _templateWindow = this.getTemplateWindow();
 		var _grid = _templateWindow.items.first();
-		
+
 		var _store = _grid.getStore();
+
+		var _proxy = _store.getProxy();
+		_proxy.setExtraParam('groupId', 1);
+		_proxy.setExtraParam('resourcePrototypeId' , cell.value.id);
+		/*
+		_proxy.setExtraParam('start' , 0);
+		_proxy.setExtraParam('limit' , 10);
+		_proxy.setExtraParam('page' , 1);
+		*/
 		
+		/*
+		//var start_page = 1;
+		_proxy.page = '1';
+		_proxy.read(operation);
+		*/
+		
+		/*
 		_store.setProxy({
-			type: 'ajax',
-			method: 'get',
-			url: _url,
-			reader: {
-				type: 'json',
-				root: 'data'				
+			type : 'ajax',
+			method : 'get',
+			url : _url,
+			reader : {
+				type : 'json',
+				root : 'data'
 			},
-			extraParams:{
-				/*
-				start:0,
-				limit:10,
-				
-				*/
-				pageSize: 10,
-				groupId: 1,
-				resourcePrototypeId: cell.value.id
+			extraParams : {
+				pageSize : 10,
+				groupId : 1,
+				resourcePrototypeId : cell.value.id
 			}
-			
+
 		});
-		
+		*/
+
 		_store.load();
-		
+
 		_templateWindow.show();
+	},
+	
+	updateMetrics : function(button){	
+		var grid = 	button.up('grid');
+		var sm = grid.getSelectionModel();
+		var selectedItems = sm.getSelection();
+		var data = new Array;
+		for(var i=0; i< selectedItems.length; i++){
+			data.push(selectedItems[i].getData());
+		}
+		var _templates = Ext.encode(data);
+		Ext.Ajax.request({
+			url: 'generate_metrics',
+			params: {
+				groupId: 1,
+				resourcePrototypeId: this.metric_being_updated,
+				metrics: _templates
+			}, 
+			success: function() {
+				Ext.Msg.alert('成功', '生成Metric成功过！');
+				me.hide();
+			},
+			failure: function(response) {
+				Ext.Msg.alert('失败', response.responseText);
+			}
+		});        	
 	}
+	
 });

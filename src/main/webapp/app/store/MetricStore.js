@@ -9,18 +9,18 @@ Ext.define('PaaSMonitor.store.MetricStore', {
         var me = this;
         cfg = cfg || {};
         me.callParent([Ext.apply({
-            autoLoad: true,
+            autoLoad: false,
             storeId: 'MetricStore',
             model: 'PaaSMonitor.model.Metric',
-            pageSize: 10,	
+            pageSize: 10,            
             proxy: {
                 type: 'ajax',
-                url: 'resources/data/MetricTemplateInitial.json',                
+                url: 'metrics/all',                
                 reader: {
                     type: 'json',
                     root: 'data'
                 }
-            }
+            }            
         }, cfg)]);
     }
 });

@@ -8,11 +8,13 @@ Ext.define('PaaSMonitor.store.MetricTemplateStore', {
     constructor: function(cfg) {
         var me = this;
         cfg = cfg || {};
+        /*
         me.callParent([Ext.apply({
-            autoLoad: true,
+            autoLoad: false,
             storeId: 'MetricTemplateStore',
             model: 'PaaSMonitor.model.MetricTemplate',
             pageSize: 10,	
+           
             proxy: {
                 type: 'ajax',
                 url: 'resources/data/MetricTemplate.json',
@@ -21,6 +23,8 @@ Ext.define('PaaSMonitor.store.MetricTemplateStore', {
                     root: 'data'
                 }
             }
+            
         }, cfg)]);
+        */
     }
 });
