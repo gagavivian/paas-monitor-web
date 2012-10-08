@@ -113,7 +113,7 @@ public class MetricController {
     		try {
     			Resource resource = Resource.findResource(resourceId);
                 ResourcePrototype prototype = resource.getResourcePrototype();
-                ResourceGroup group = ResourceGroup.findResourceGroup(0);
+                ResourceGroup group = ResourceGroup.findResourceGroup(1);
                 List total = metricManager.getMetricsByResourcePrototypeAndGroup(prototype, group);
                 
                 // 此处的方法需要修改成只返回用户定制的data的方法
