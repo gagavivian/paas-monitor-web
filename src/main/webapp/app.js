@@ -5,9 +5,9 @@ Ext.Loader.setConfig({
 Ext.application({
 	models : [
 			'Resource', 'ResourcePrototype', 'ResourcePropertyKey', 'ResourcePropertyValue',
-			'MetricTemplate', 'Metric'
+			'MetricTemplate', 'Metric', 'HistoryData'
 	],
-	stores : ['MenuStore', 'Vim', 'MetricTemplateStore', 'MetricStore'],
+	stores : ['MenuStore', 'Vim', 'MetricTemplateStore', 'MetricStore', 'CustomedMetricStore', 'HistoryDataStore'],
 	autoCreateViewport : true,
 	name : 'PaaSMonitor',
 	controllers : ['MenuController', 'MoniteesController', 'ModelDefController', 'ModelViewController'],

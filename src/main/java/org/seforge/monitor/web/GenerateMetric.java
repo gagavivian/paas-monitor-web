@@ -60,7 +60,7 @@ public class GenerateMetric {
     	    		metrics.get(i).setEnabled(true);    	    		
     	    	}
     	    	
-    	    	metricManager.saveAndUpdateMetrics(metrics);
+    	    	metricManager.saveAndUpdateMetrics(metrics, ResourcePrototype.findResourcePrototype(resourcePrototypeId));
     	    	
                 returnStatus = HttpStatus.OK;
                 response.setMessage("All Metric Templates found");

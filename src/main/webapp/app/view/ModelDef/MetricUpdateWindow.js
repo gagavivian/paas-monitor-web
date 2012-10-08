@@ -24,7 +24,7 @@ Ext.define('PaaSMonitor.view.ModelDef.MetricUpdateWindow', {
         //在此处添加需要在window中使用的组件，如grid  
         
         var grid = Ext.create('Ext.grid.Panel', {
-    		store: Ext.data.StoreManager.lookup('MetricStore'),
+        	store: 'MetricStore',
 			columns:[{
 				header: '名称',  
 				dataIndex: 'templateName' 
@@ -50,13 +50,26 @@ Ext.define('PaaSMonitor.view.ModelDef.MetricUpdateWindow', {
 			],
 			dockedItems: [{
 				xtype: 'pagingtoolbar',
-				store: Ext.data.StoreManager.lookup('MetricStore'),
+				store: 'MetricStore',
 				dock: 'bottom',
 				displayInfo: true
     		}],
         });
         
         me.items = [grid];
+        
+        var _store = grid.getStore();
+        var _selModel = grid.getSelectionModel();
+        
+        _store.addListener('load', function(){
+        	var index = 0;
+        	_store.each(function(record){
+        		if (record.get('enabled') == 'true') {
+        			_selModel.select(index);
+        			index ++;
+        		}
+        	});	
+        });
         
         var ok = Ext.create('Ext.Button', {
         	id: 'update_metrics_button',

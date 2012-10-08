@@ -1,5 +1,7 @@
 Ext.define('PaaSMonitor.model.Metric', {
     extend: 'Ext.data.Model',
+    
+    //requires: ['PasSMonitor.model.MetricTemplate'],
 
     idProperty: 'id',
     

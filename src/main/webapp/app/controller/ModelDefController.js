@@ -675,49 +675,23 @@ Ext.define('PaaSMonitor.controller.ModelDefController', {
 
 		var _templateWindow = this.getTemplateWindow();
 		var _grid = _templateWindow.items.first();
+		
+		var _pagingtoolbar = _grid.down('pagingtoolbar');
 
 		var _store = _grid.getStore();
 
 		var _proxy = _store.getProxy();
 		_proxy.setExtraParam('groupId', 1);
 		_proxy.setExtraParam('resourcePrototypeId' , cell.value.id);
-		/*
-		_proxy.setExtraParam('start' , 0);
-		_proxy.setExtraParam('limit' , 10);
-		_proxy.setExtraParam('page' , 1);
-		*/
-		
-		/*
-		//var start_page = 1;
-		_proxy.page = '1';
-		_proxy.read(operation);
-		*/
-		
-		/*
-		_store.setProxy({
-			type : 'ajax',
-			method : 'get',
-			url : _url,
-			reader : {
-				type : 'json',
-				root : 'data'
-			},
-			extraParams : {
-				pageSize : 10,
-				groupId : 1,
-				resourcePrototypeId : cell.value.id
-			}
 
-		});
-		*/
-
-		_store.load();
+		_store.load({params: {start:0, limit: 10, page:1}});
+		_pagingtoolbar.moveFirst();
 
 		_templateWindow.show();
 	},
 	
 	updateMetrics : function(button){	
-		var grid = 	button.up('grid');
+		var grid = 	button.up('window').down('grid');
 		var sm = grid.getSelectionModel();
 		var selectedItems = sm.getSelection();
 		var data = new Array;

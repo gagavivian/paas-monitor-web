@@ -1,7 +1,7 @@
 Ext.define('PaaSMonitor.controller.ModelViewController', {
 	extend : 'Ext.app.Controller',
 
-	views : ['ModelView.ModelViewPanel', 'ModelView.MetricWindow'],
+	views : ['ModelView.ModelViewPanel', 'ModelView.MetricWindow', 'ModelView.HistoryDataWindow'],
 
 	refs : [{
 		ref : 'viewPanel',
@@ -12,6 +12,11 @@ Ext.define('PaaSMonitor.controller.ModelViewController', {
 		//此处一定要加xtype，否则无法创建出正确的component类型
 		xtype : 'showmetric',
 		autoCreate : true
+	}, {
+		ref: 'historyDataWindow',
+		selector: 'showhistorydata',
+		xtype: 'showhistorydata',
+		autoCreate: true
 	}],
 
 	init : function(application) {
@@ -19,6 +24,9 @@ Ext.define('PaaSMonitor.controller.ModelViewController', {
 		this.control({
 			'modelviewpanel' : {
 				activate : this.loadRuntimeModel
+			},
+			'#showhistorydata' : {
+				click: this.showHistoryData
 			}
 		});
 
@@ -202,7 +210,7 @@ Ext.define('PaaSMonitor.controller.ModelViewController', {
 			if (graph.isHtmlLabel(cell)) {
 				menu.addItem('Show Monitoring Statistics', 'images/properties.gif', function() {
 					//editor.execute('metric', cell);
-					controller.showMetrics();
+					controller.showMetrics(graph, cell);
 				});
 				
 				menu.addItem('Adjust Layout', 'images/properties.gif', function() {
@@ -226,8 +234,29 @@ Ext.define('PaaSMonitor.controller.ModelViewController', {
 	},
 
 	showMetrics : function(graph, cell) {
+		
 		//需要在ModelView.MetricWindow中加入内容
-		this.getMetricWindow().show();
+
+		// var url = '/metrics/' + cell.value.getAttributes('id') + '/all';
+		this.metric_being_updated =  cell.value.id;
+		var _url = 'metrics/customed';
+
+		var _metricWindow = this.getMetricWindow();
+		var _grid = _metricWindow.items.first();
+		
+		//var _actionColumn = _grid.getComponent('actionColumn');
+		
+		var _pagingtoolbar = _grid.down('pagingtoolbar');
+
+		var _store = _grid.getStore();
+
+		var _proxy = _store.getProxy();
+		_proxy.setExtraParam('resourceId' , cell.value.id);
+
+		_store.load({params: {start:0, limit: 10, page:1}});
+		_pagingtoolbar.moveFirst();
+
+		_metricWindow.show();
 	},
 	
 	adjustLayout : function(graph, root){
@@ -392,5 +421,30 @@ Ext.define('PaaSMonitor.controller.ModelViewController', {
 			}
 		}
 		return children;
+	},
+	
+	
+	showHistoryData : function(view,cell,row,col,e) {
+		var m = e.getTarget().className.match(/\bicon-(\w+)\b/)
+        if(m){
+            //选择该列
+            var grid = this.getMetricWindow().down('grid');
+            var metricStore = grid.getStore();
+            grid.getSelectionModel().select(row,false);
+            var historyDataWindow = this.getHistoryDataWindow();
+            var historyDataStore = historyDataWindow.down('panel').down('chart').getStore();
+            var _proxy = historyDataStore.getProxy();
+            //var groupId = 1;
+            var resourceId = cell.value.id;
+            var metricId = metricStore.getAt(row).get('id');
+            //_proxy.setExtraParam('groupId', groupId);
+			_proxy.setExtraParam('resourceId', resourceId);
+			_proxy.setExtraParam('metricId', metricId);	
+						
+			_historyDataStore.load();
+						
+			historyDataWindow.show();
+											            		
+        }
 	}
 });
