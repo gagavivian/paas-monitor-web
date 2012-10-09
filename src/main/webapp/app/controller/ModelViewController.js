@@ -13,10 +13,10 @@ Ext.define('PaaSMonitor.controller.ModelViewController', {
 		xtype : 'showmetric',
 		autoCreate : true
 	}, {
-		ref: 'historyDataWindow',
-		selector: 'showhistorydata',
-		xtype: 'showhistorydata',
-		autoCreate: true
+		ref : 'historyDataWindow',
+		selector : 'showhistorydata',
+		xtype : 'showhistorydata',
+		autoCreate : true
 	}],
 
 	init : function(application) {
@@ -25,8 +25,8 @@ Ext.define('PaaSMonitor.controller.ModelViewController', {
 			'modelviewpanel' : {
 				activate : this.loadRuntimeModel
 			},
-			'#showhistorydata' : {
-				click: this.showHistoryData
+			'#showdata' : {
+				click : this.showHistoryData
 			}
 		});
 
@@ -60,7 +60,7 @@ Ext.define('PaaSMonitor.controller.ModelViewController', {
 
 		var hierarchicalLayout = new mxHierarchicalLayout(graph, mxConstants.DIRECTION_WEST);
 		hierarchicalLayout.intraCellSpacing = 50;
-		hierarchicalLayout.interRankCellSpacing = 80;		
+		hierarchicalLayout.interRankCellSpacing = 80;
 
 		var parent = graph.getDefaultParent();
 
@@ -121,7 +121,6 @@ Ext.define('PaaSMonitor.controller.ModelViewController', {
 		graph.isCellEditable = function(cell) {
 			return false;
 		};
-
 
 		//添加监听双击操作的listener
 		graph.addListener(mxEvent.DOUBLE_CLICK, function(sender, evt) {
@@ -212,7 +211,7 @@ Ext.define('PaaSMonitor.controller.ModelViewController', {
 					//editor.execute('metric', cell);
 					controller.showMetrics(graph, cell);
 				});
-				
+
 				menu.addItem('Adjust Layout', 'images/properties.gif', function() {
 					//editor.execute('metric', cell);
 					controller.adjustLayout(graph, cell);
@@ -234,32 +233,38 @@ Ext.define('PaaSMonitor.controller.ModelViewController', {
 	},
 
 	showMetrics : function(graph, cell) {
-		
+
 		//需要在ModelView.MetricWindow中加入内容
 
 		// var url = '/metrics/' + cell.value.getAttributes('id') + '/all';
-		this.metric_being_updated =  cell.value.id;
+		this.metric_being_updated = cell.value.id;
 		var _url = 'metrics/customed';
 
 		var _metricWindow = this.getMetricWindow();
 		var _grid = _metricWindow.items.first();
-		
+
 		//var _actionColumn = _grid.getComponent('actionColumn');
-		
+
 		var _pagingtoolbar = _grid.down('pagingtoolbar');
 
 		var _store = _grid.getStore();
 
 		var _proxy = _store.getProxy();
-		_proxy.setExtraParam('resourceId' , cell.value.id);
+		_proxy.setExtraParam('resourceId', cell.value.id);
 
-		_store.load({params: {start:0, limit: 10, page:1}});
-		_pagingtoolbar.moveFirst();
+		_store.load({
+			params : {
+				start : 0,
+				limit : 10,
+				page : 1
+			}
+		});
+		// _pagingtoolbar.moveFirst();
 
 		_metricWindow.show();
 	},
-	
-	adjustLayout : function(graph, root){
+
+	adjustLayout : function(graph, root) {
 		var treeLayout = new mxCompactTreeLayout(graph);
 		treeLayout.intraCellSpacing = 50;
 		treeLayout.execute(root);
@@ -270,7 +275,7 @@ Ext.define('PaaSMonitor.controller.ModelViewController', {
 		var space = 100;
 		for (var i = 0; i < modelData.length; i++) {
 			var phymObject = Ext.create('PaaSMonitor.model.Resource', modelData[i]);
-			var phym = graph.insertVertex(parent, phymObject.name, phymObject.data, 30, space*i, 48, 48, 'Phym');
+			var phym = graph.insertVertex(parent, phymObject.name, phymObject.data, 30, space * i, 48, 48, 'Phym');
 			//            this.expandChildren(graph, os, null, 'Vim');
 		}
 	},
@@ -365,13 +370,13 @@ Ext.define('PaaSMonitor.controller.ModelViewController', {
 							var childObject = Ext.create('PaaSMonitor.model.Resource', children[i]);
 							var child = graph.insertVertex(cell, childObject.get('name'), childObject.data, 0, 0, 48, 48, type);
 							var root = graph.getDefaultParent();
-							var parent_to_child = graph.insertEdge(root, null, '', cell, child);							
+							var parent_to_child = graph.insertEdge(root, null, '', cell, child);
 						}
-						
-					} finally {						
-						graph.getModel().endUpdate();						
+
+					} finally {
+						graph.getModel().endUpdate();
 					}
-				}else {
+				} else {
 					//没有子节点
 				}
 				//此处调整layout不起作用，待修改
@@ -422,29 +427,41 @@ Ext.define('PaaSMonitor.controller.ModelViewController', {
 		}
 		return children;
 	},
-	
-	
-	showHistoryData : function(view,cell,row,col,e) {
-		var m = e.getTarget().className.match(/\bicon-(\w+)\b/)
-        if(m){
-            //选择该列
-            var grid = this.getMetricWindow().down('grid');
-            var metricStore = grid.getStore();
-            grid.getSelectionModel().select(row,false);
-            var historyDataWindow = this.getHistoryDataWindow();
-            var historyDataStore = historyDataWindow.down('panel').down('chart').getStore();
-            var _proxy = historyDataStore.getProxy();
-            //var groupId = 1;
-            var resourceId = cell.value.id;
-            var metricId = metricStore.getAt(row).get('id');
-            //_proxy.setExtraParam('groupId', groupId);
-			_proxy.setExtraParam('resourceId', resourceId);
-			_proxy.setExtraParam('metricId', metricId);	
-						
-			_historyDataStore.load();
-						
-			historyDataWindow.show();
-											            		
-        }
+
+	showHistoryData : function(view, cell, row, col, e) {
+		//var m = e.getTarget().className.match(/\bicon-(\w+)\b/)
+		//if(m){
+		//选择该列
+		var grid = this.getMetricWindow().down('grid');
+		var metricStore = grid.getStore();
+		grid.getSelectionModel().select(row, false);
+		var historyDataWindow = this.getHistoryDataWindow();
+		var chart = historyDataWindow.down('panel').down('chart');
+		var historyDataStore = chart.getStore();
+		var _proxy = historyDataStore.getProxy();
+		//var groupId = 1;
+		var resourceId = this.metric_being_updated;
+		var metricId = metricStore.getAt(row).get('id');
+		//_proxy.setExtraParam('groupId', groupId);
+		_proxy.setExtraParam('resourceId', resourceId);
+		_proxy.setExtraParam('metricId', metricId);
+
+		historyDataStore.load({
+			scope : this,
+			callback : function(records, operation, success) {
+				var max = historyDataStore.max('value');
+				var min = 0;
+				chart.axes.items[0].minimum = min;
+				chart.axes.items[0].maximum = max;
+				chart.axes.items[1].minimum = records[0].data.timestamp;
+				chart.axes.items[1].maximum = records[records.length-1].data.timestamp;
+				chart.axes.items[1].step = [Ext.Date.MINUTE, 60];
+				chart.refresh();
+			}
+		});
+
+		historyDataWindow.show();
+
+		// }
 	}
 });

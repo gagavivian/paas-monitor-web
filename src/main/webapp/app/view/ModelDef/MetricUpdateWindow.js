@@ -23,9 +23,16 @@ Ext.define('PaaSMonitor.view.ModelDef.MetricUpdateWindow', {
         
         //在此处添加需要在window中使用的组件，如grid  
         
+        var checkColumn = new Ext.ux.CheckColumn({
+		   header: 'Enabled',
+		   dataIndex: 'enabled',
+		   id: 'check',
+		   width: 55
+		});
+        
         var grid = Ext.create('Ext.grid.Panel', {
         	store: 'MetricStore',
-			columns:[{
+			columns:[checkColumn, {
 				header: '名称',  
 				dataIndex: 'templateName' 
 				},{
@@ -39,15 +46,16 @@ Ext.define('PaaSMonitor.view.ModelDef.MetricUpdateWindow', {
 				},{
 				header: '单位', dataIndex: 'templateUnits' 
 			}],
-			selType: 'checkboxmodel',
-        	multiSelect: true,
+			
 			height: 200,
 			width: 400,
+			
 			plugins:[
 				Ext.create('Ext.grid.plugin.CellEditing', {
 					clicksToEdit: 1
 				})
 			],
+			
 			dockedItems: [{
 				xtype: 'pagingtoolbar',
 				store: 'MetricStore',
@@ -59,17 +67,9 @@ Ext.define('PaaSMonitor.view.ModelDef.MetricUpdateWindow', {
         me.items = [grid];
         
         var _store = grid.getStore();
-        var _selModel = grid.getSelectionModel();
+        //var _selModel = grid.getSelectionModel();
         
-        _store.addListener('load', function(){
-        	var index = 0;
-        	_store.each(function(record){
-        		if (record.get('enabled') == 'true') {
-        			_selModel.select(index);
-        			index ++;
-        		}
-        	});	
-        });
+      
         
         var ok = Ext.create('Ext.Button', {
         	id: 'update_metrics_button',

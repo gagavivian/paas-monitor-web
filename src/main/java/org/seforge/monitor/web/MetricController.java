@@ -114,14 +114,14 @@ public class MetricController {
     			Resource resource = Resource.findResource(resourceId);
                 ResourcePrototype prototype = resource.getResourcePrototype();
                 ResourceGroup group = ResourceGroup.findResourceGroup(1);
-                List total = metricManager.getMetricsByResourcePrototypeAndGroup(prototype, group);
+//                List total = metricManager.getMetricsByResourcePrototypeAndGroup(prototype, group);
                 
                 // 此处的方法需要修改成只返回用户定制的data的方法
                 List data = metricManager.getEnabledMetrics(prototype, group, start, limit);     
                 returnStatus = HttpStatus.OK;
-                response.setMessage("All Metric Templates found");
+                response.setMessage("All Enabled Metrics found");
                 response.setSuccess(true);
-                response.setTotal(total.size());
+                response.setTotal(metricManager.getEnabledMetricCount(prototype, group));
                 response.setData(data);
             } catch (Exception e) {
             	returnStatus = HttpStatus.INTERNAL_SERVER_ERROR;

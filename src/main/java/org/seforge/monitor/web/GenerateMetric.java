@@ -57,7 +57,7 @@ public class GenerateMetric {
     	    	for (int i = 0; i < len; i ++) {
     	    		metrics.get(i).setResourceGroup(ResourceGroup.findResourceGroup(groupId));
     	    		metrics.get(i).setResourcePrototype(ResourcePrototype.findResourcePrototype(resourcePrototypeId));
-    	    		metrics.get(i).setEnabled(true);    	    		
+    	    		 	    		
     	    	}
     	    	
     	    	metricManager.saveAndUpdateMetrics(metrics, ResourcePrototype.findResourcePrototype(resourcePrototypeId));

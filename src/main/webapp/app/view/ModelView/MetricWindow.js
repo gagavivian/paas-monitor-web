@@ -14,7 +14,7 @@ Ext.define('PaaSMonitor.view.ModelView.MetricWindow', {
     closeAction: 'hide',
     
     //除窗口外背景全部变为暗色，然后其他区域不能操作
-    modal: true,
+    modal: false,
 
     initComponent: function() {
         var me = this;
@@ -36,8 +36,9 @@ Ext.define('PaaSMonitor.view.ModelView.MetricWindow', {
 				},{
 				header: '显示监测历史数据',
 				xtype: 'actioncolumn',
+				id: 'showdata',
 				items: [{
-					id: 'showdata',
+					
 					icon: 'images/showchart.png',
 					alertText: '显示监测历史数据',
 					tooltip: '点击显示监测历史数据'
@@ -48,7 +49,7 @@ Ext.define('PaaSMonitor.view.ModelView.MetricWindow', {
 			width: 400,
 			dockedItems: [{
 				xtype: 'pagingtoolbar',
-				store: 'MetricStore',
+				store: 'CustomedMetricStore',
 				dock: 'bottom',
 				displayInfo: true
     		}],

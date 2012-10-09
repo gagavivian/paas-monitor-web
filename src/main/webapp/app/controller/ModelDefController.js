@@ -690,13 +690,13 @@ Ext.define('PaaSMonitor.controller.ModelDefController', {
 		_templateWindow.show();
 	},
 	
-	updateMetrics : function(button){	
+	updateMetrics : function(button){				
 		var grid = 	button.up('window').down('grid');
-		var sm = grid.getSelectionModel();
-		var selectedItems = sm.getSelection();
+		var gridStore = grid.getStore();
+		var modified = gridStore.getModifiedRecords();		
 		var data = new Array;
-		for(var i=0; i< selectedItems.length; i++){
-			data.push(selectedItems[i].getData());
+		for(var i=0; i< modified.length; i++){
+			data.push(modified[i].getData());
 		}
 		var _templates = Ext.encode(data);
 		Ext.Ajax.request({
@@ -708,7 +708,7 @@ Ext.define('PaaSMonitor.controller.ModelDefController', {
 			}, 
 			success: function() {
 				Ext.Msg.alert('成功', '生成Metric成功过！');
-				me.hide();
+				button.up('window').hide();
 			},
 			failure: function(response) {
 				Ext.Msg.alert('失败', response.responseText);

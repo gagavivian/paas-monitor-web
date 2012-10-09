@@ -2,6 +2,8 @@ Ext.Loader.setConfig({
 	enabled : true
 });
 
+Ext.Loader.setPath('Ext.ux', 'lib');
+
 Ext.application({
 	models : [
 			'Resource', 'ResourcePrototype', 'ResourcePropertyKey', 'ResourcePropertyValue',
