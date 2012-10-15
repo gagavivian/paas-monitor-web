@@ -27,11 +27,11 @@ public class ModelController {
 	private ResourceManager resourceManager;
 
 	@RequestMapping(value = "/getmodel", method = RequestMethod.GET)
-	public ResponseEntity<String> getJsonModel(HttpServletRequest request) {
+	public ResponseEntity<String> getJsonModel(@RequestParam("groupId") Integer groupId) {
 		HttpHeaders responseHeaders = new HttpHeaders();
 		responseHeaders.add("Content-Type", "application/json");
 		List<Resource> entities;
-		entities = resourceManager.getAllPhyms();
+		entities = resourceManager.getPhymsByGroup(groupId);
 		return new ResponseEntity<String>(new JSONSerializer()
 				.exclude("*.class")
 				.include("resourcePropertyValues")

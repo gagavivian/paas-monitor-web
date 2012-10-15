@@ -26,7 +26,7 @@ Ext.define('PaaSMonitor.controller.MenuController', {
         if(selected.length > 0){
             var index = selected[0].data.id;
             this.getContentPanel().layout.setActiveItem(index);
-        }
+        }        
     }
 
 });

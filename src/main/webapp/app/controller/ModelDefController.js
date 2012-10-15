@@ -681,7 +681,7 @@ Ext.define('PaaSMonitor.controller.ModelDefController', {
 		var _store = _grid.getStore();
 
 		var _proxy = _store.getProxy();
-		_proxy.setExtraParam('groupId', 1);
+		_proxy.setExtraParam('groupId', Ext.groupId);
 		_proxy.setExtraParam('resourcePrototypeId' , cell.value.id);
 
 		_store.load({params: {start:0, limit: 10, page:1}});
@@ -702,7 +702,7 @@ Ext.define('PaaSMonitor.controller.ModelDefController', {
 		Ext.Ajax.request({
 			url: 'generate_metrics',
 			params: {
-				groupId: 1,
+				groupId: Ext.groupId,
 				resourcePrototypeId: this.metric_being_updated,
 				metrics: _templates
 			}, 

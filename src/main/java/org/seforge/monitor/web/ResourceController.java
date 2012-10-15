@@ -57,6 +57,7 @@ public class ResourceController {
         		throw new DuplicateEntityException("Resource of "+ ip + " has existed!");
         	}        	
         } catch (Exception e) {        	
+        	e.printStackTrace();
         	returnStatus = HttpStatus.INTERNAL_SERVER_ERROR;        	
             response.setMessage(e.getMessage());
             response.setSuccess(false);

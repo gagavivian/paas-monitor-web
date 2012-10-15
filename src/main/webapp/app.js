@@ -15,6 +15,13 @@ Ext.application({
 	controllers : ['MenuController', 'MoniteesController', 'ModelDefController', 'ModelViewController'],
 
 	launch : function() {
+		Ext.groupId = getRequestParam('groupId');
+		if(Ext.groupId == null || Ext.groupId == ""){
+			var win;
+        	if(!win){
+            win = Ext.create('PaaSMonitor.view.Login').show();
+        	}
+		}		
 		var hideMask = function() {
 			Ext.get('loading').remove();
 			Ext.fly('loading-mask').animate({
@@ -23,6 +30,6 @@ Ext.application({
 			});
 		};
 
-		Ext.defer(hideMask, 200);
+		Ext.defer(hideMask, 200);		
 	}
 });

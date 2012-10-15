@@ -155,7 +155,7 @@ Ext.define('PaaSMonitor.controller.ModelViewController', {
 		});
 		loadMask.show();
 		Ext.Ajax.request({
-			url : 'model/getmodel',
+			url : 'model/getmodel?groupId=' + Ext.groupId,
 			timeout : 90000,
 			success : function(response) {
 				var json = response.responseText;
