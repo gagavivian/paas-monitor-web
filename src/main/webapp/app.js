@@ -17,11 +17,13 @@ Ext.application({
 	launch : function() {
 		Ext.groupId = getRequestParam('groupId');
 		if(Ext.groupId == null || Ext.groupId == ""){
-			var win;
+			/*var win;
         	if(!win){
             win = Ext.create('PaaSMonitor.view.Login').show();
-        	}
+        	}*/
+        	Ext.groupId = 1;
 		}		
+		
 		var hideMask = function() {
 			Ext.get('loading').remove();
 			Ext.fly('loading-mask').animate({

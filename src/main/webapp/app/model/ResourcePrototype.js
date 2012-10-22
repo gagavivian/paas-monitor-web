@@ -9,6 +9,9 @@ Ext.define('PaaSMonitor.model.ResourcePrototype', {
         },
         {
             name: 'name'
+        },
+        {
+            name: 'typeId'
         }
     ]
 });

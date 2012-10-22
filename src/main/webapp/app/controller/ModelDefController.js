@@ -1,7 +1,7 @@
 Ext.define('PaaSMonitor.controller.ModelDefController', {
 	extend : 'Ext.app.Controller',
 
-	views : ['ModelDef.ModelDefPanel', 'ModelDef.MetricUpdateWindow'],
+	views : ['ModelDef.ModelDefPanel', 'ModelDef.MetricUpdateWindow', 'ModelDef.ServerTypeSelect'],
 
 	refs : [{
 		ref : 'defPanel',
@@ -12,7 +12,7 @@ Ext.define('PaaSMonitor.controller.ModelDefController', {
 		//此处一定要加xtype，否则无法创建出正确的component类型
 		xtype : 'templatewindow',
 		autoCreate : true
-	},{
+	}, {
 		ref : 'serverTypeSelect',
 		selector : 'servertypeselect',
 		xtype : 'servertypeselect',
@@ -25,8 +25,12 @@ Ext.define('PaaSMonitor.controller.ModelDefController', {
 			 activate : this.loadModelDef
 			 }
 			 */
-			'#update_metrics_button':{
-				click: this.updateMetrics
+			'#update_metrics_button' : {
+				click : this.updateMetrics
+			},
+
+			'#select_type_server' : {
+				click : this.chooseAppServerType
 			}
 		});
 
@@ -343,8 +347,8 @@ Ext.define('PaaSMonitor.controller.ModelDefController', {
 		this.addSidebarIcon(graph, sidebar, platformService, 'images/icons48/service.png');
 
 		var appServerPrototype = Ext.create('PaaSMonitor.model.ResourcePrototype', {
-			id : 11,
-			name : 'Apache Tomcat 6.0'
+			typeId : 4,
+			name : 'App Server'
 		});
 		var appServer = new mxCell(appServerPrototype.data, new mxGeometry(0, 0, 200, 54), 'appServer');
 		appServer.setVertex(true);
@@ -360,7 +364,7 @@ Ext.define('PaaSMonitor.controller.ModelDefController', {
 
 		var appInstancePrototype = Ext.create('PaaSMonitor.model.ResourcePrototype', {
 			id : 1,
-			name : 'VMware Vsphere'
+			name : 'App Instance'
 		});
 		var appInstance = new mxCell(appInstancePrototype.data, new mxGeometry(0, 0, 200, 54), 'appInstance');
 		appInstance.setVertex(true);
@@ -537,7 +541,8 @@ Ext.define('PaaSMonitor.controller.ModelDefController', {
 		// Function that is executed when the image is dropped on
 		// the graph. The cell argument points to the cell under
 		// the mousepointer if there is one.
-		var _window = this.getServerTypeSelect();		
+		var controller = this;
+		var _window = this.getServerTypeSelect();
 		var funct = function(graph, evt, cell) {
 			graph.stopEditing(false);
 
@@ -548,86 +553,22 @@ Ext.define('PaaSMonitor.controller.ModelDefController', {
 
 			var isTable = graph.isSwimlane(prototype);
 			var name = null;
-			{graph.model.getChildCount(parent) + 1;
-			}
-
-			var v = model.cloneCell(prototype);
-			var v1;
 			model.beginUpdate();
-			
 			try {
-				// v1.value.name = name;
-				value = v.value;
-				
-				if (value.id == 11) {
-					// Ext.Msg.alert('test', prototype.get('id'));
-					var _radioGroup = _window.down('radiogroup');
-					var _okButton = _window.down('button');
-					_okButton.on('click', function(){
-							switch(_radioGroup.getChecked()[0].inputValue) {
-								case '1':
-									v1 = v;
-									v1.geometry.x = pt.x;
-									v1.geometry.y = pt.y;
-									
-									graph.addCell(v1, parent);
-					
-									v1.geometry.alternateBounds = new mxRectangle(0, 0, v1.geometry.width, v1.geometry.height);
-									graph.setSelectionCell(v1);
-									break;
-								case '2':
-									var appServerPrototype2 = Ext.create('PaaSMonitor.model.ResourcePrototype', {
-										id : 20,
-										name : 'Apache Tomcat 7.0'
-									})
-									var appServer2 = new mxCell(appServerPrototype2.data, new mxGeometry(pt.x, pt.y, v.geometry.width, v.geometry.height), 'appServer');
-									appServer2.setVertex(true);
-									graph.addCell(appServer2, parent);
-									graph.setSelectionCell(appServer2);
-									break;
-								case '3':
-									var appServerPrototype3 = Ext.create('PaaSMonitor.model.ResourcePrototype', {
-										id : 19,
-										name : 'Apache httd'
-									});
-									var appServer3 = new mxCell(appServerPrototype3.data, new mxGeometry(pt.x, pt.y, v.geometry.width, v.geometry.height), 'appServer');
-									appServer3.setVertex(true);
-									graph.addCell(appServer3, parent);
-									graph.setSelectionCell(appServer3);
-									break;
-							}
-							_window.hide();
-						});
-						
+				value = prototype.value;
+
+				if (value.typeId == 4) {
+					controller.pt = pt;
 					_window.show();
-				}
-				else {
+				} else {
+					var v = model.cloneCell(prototype);
 					v1 = v;
 					v1.geometry.x = pt.x;
 					v1.geometry.y = pt.y;
-					
 					graph.addCell(v1, parent);
-	
 					v1.geometry.alternateBounds = new mxRectangle(0, 0, v1.geometry.width, v1.geometry.height);
 					graph.setSelectionCell(v1);
 				}
-				
-				/*
-				v1.geometry.x = pt.x;
-				v1.geometry.y = pt.y;
-				
-				graph.addCell(v1, parent);
-
-				v1.geometry.alternateBounds = new mxRectangle(0, 0, v1.geometry.width, v1.geometry.height);
-				*/
-				
-				// if (isTable)
-				// {
-				// v1.geometry.alternateBounds = new mxRectangle(0, 0, v1.geometry.width, v1.geometry.height);
-				// v1.children[0].value.value = ip;
-				// v1.children[1].value.value = jmxPort;
-
-				// }
 			} finally {
 				model.endUpdate();
 			}
@@ -736,50 +677,97 @@ Ext.define('PaaSMonitor.controller.ModelDefController', {
 		//需要在ModelView.MetricWindow中加入内容
 
 		// var url = '/metrics/' + cell.value.getAttributes('id') + '/all';
-		this.metric_being_updated =  cell.value.id;
+		this.metric_being_updated = cell.value.id;
 		var _url = 'metrics/all';
 
 		var _templateWindow = this.getTemplateWindow();
 		var _grid = _templateWindow.items.first();
-		
+
 		var _pagingtoolbar = _grid.down('pagingtoolbar');
 
 		var _store = _grid.getStore();
 
 		var _proxy = _store.getProxy();
 		_proxy.setExtraParam('groupId', Ext.groupId);
-		_proxy.setExtraParam('resourcePrototypeId' , cell.value.id);
+		_proxy.setExtraParam('resourcePrototypeId', cell.value.id);
 
-		_store.load({params: {start:0, limit: 10, page:1}});
+		_store.load({
+			params : {
+				start : 0,
+				limit : 10,
+				page : 1
+			}
+		});
 		_pagingtoolbar.moveFirst();
 
 		_templateWindow.show();
 	},
-	
-	updateMetrics : function(button){				
-		var grid = 	button.up('window').down('grid');
+
+	updateMetrics : function(button) {
+		var grid = button.up('window').down('grid');
 		var gridStore = grid.getStore();
-		var modified = gridStore.getModifiedRecords();		
+		var modified = gridStore.getModifiedRecords();
 		var data = new Array;
-		for(var i=0; i< modified.length; i++){
+		for (var i = 0; i < modified.length; i++) {
 			data.push(modified[i].getData());
 		}
 		var _templates = Ext.encode(data);
 		Ext.Ajax.request({
-			url: 'generate_metrics',
-			params: {
-				groupId: Ext.groupId,
-				resourcePrototypeId: this.metric_being_updated,
-				metrics: _templates
-			}, 
-			success: function() {
+			url : 'generate_metrics',
+			params : {
+				groupId : Ext.groupId,
+				resourcePrototypeId : this.metric_being_updated,
+				metrics : _templates
+			},
+			success : function() {
 				Ext.Msg.alert('成功', '生成Metric成功过！');
 				button.up('window').hide();
 			},
-			failure: function(response) {
+			failure : function(response) {
 				Ext.Msg.alert('失败', response.responseText);
 			}
-		});        	
+		});
+	},
+
+	chooseAppServerType : function() {
+		var controller = this;
+		var _window = this.getServerTypeSelect();
+		var graph = this.defEditor.graph;
+		var model = this.defEditor.graph.model;
+		var _radioGroup = _window.down('radiogroup');
+		var parent = graph.getDefaultParent();
+		
+		model.beginUpdate();
+		try {			
+			var appServerPrototype;
+			switch(_radioGroup.getChecked()[0].inputValue) {
+				case '1':
+					appServerPrototype = Ext.create('PaaSMonitor.model.ResourcePrototype', {
+						id : 18,
+						name : 'Apache Tomcat 6.0'
+					});
+					break;
+				case '2':
+					appServerPrototype = Ext.create('PaaSMonitor.model.ResourcePrototype', {
+						id : 12,
+						name : 'Apache Tomcat 7.0'
+					});
+					break;
+				case '3':
+					appServerPrototype = Ext.create('PaaSMonitor.model.ResourcePrototype', {
+						id : 11,
+						name : 'Apache httpd'
+					});
+					break;
+			}		
+			var newcell = new mxCell(appServerPrototype.data, new mxGeometry(controller.pt.x, controller.pt.y, 200, 54), 'appServer');
+			newcell.setVertex(true);
+			graph.addCell(newcell, parent);
+			newcell.geometry.alternateBounds = new mxRectangle(0, 0, newcell.geometry.width, newcell.geometry.height);
+			graph.setSelectionCell(newcell);
+		} finally {
+			model.endUpdate();
+			_window.hide();
+		}
 	}
-	
 });
