@@ -12,6 +12,11 @@ Ext.define('PaaSMonitor.controller.ModelDefController', {
 		//此处一定要加xtype，否则无法创建出正确的component类型
 		xtype : 'templatewindow',
 		autoCreate : true
+	},{
+		ref : 'serverTypeSelect',
+		selector : 'servertypeselect',
+		xtype : 'servertypeselect',
+		autoCreate : true
 	}],
 
 	init : function(application) {
@@ -532,6 +537,7 @@ Ext.define('PaaSMonitor.controller.ModelDefController', {
 		// Function that is executed when the image is dropped on
 		// the graph. The cell argument points to the cell under
 		// the mousepointer if there is one.
+		var _window = this.getServerTypeSelect();		
 		var funct = function(graph, evt, cell) {
 			graph.stopEditing(false);
 
@@ -545,19 +551,79 @@ Ext.define('PaaSMonitor.controller.ModelDefController', {
 			{graph.model.getChildCount(parent) + 1;
 			}
 
-			var v1 = model.cloneCell(prototype);
+			var v = model.cloneCell(prototype);
+			var v1;
 			model.beginUpdate();
+			
 			try {
 				// v1.value.name = name;
-				value = v1.value;
+				value = v.value;
+				
+				if (value.id == 11) {
+					// Ext.Msg.alert('test', prototype.get('id'));
+					var _radioGroup = _window.down('radiogroup');
+					var _okButton = _window.down('button');
+					_okButton.on('click', function(){
+							switch(_radioGroup.getChecked()[0].inputValue) {
+								case '1':
+									v1 = v;
+									v1.geometry.x = pt.x;
+									v1.geometry.y = pt.y;
+									
+									graph.addCell(v1, parent);
+					
+									v1.geometry.alternateBounds = new mxRectangle(0, 0, v1.geometry.width, v1.geometry.height);
+									graph.setSelectionCell(v1);
+									break;
+								case '2':
+									var appServerPrototype2 = Ext.create('PaaSMonitor.model.ResourcePrototype', {
+										id : 20,
+										name : 'Apache Tomcat 7.0'
+									})
+									var appServer2 = new mxCell(appServerPrototype2.data, new mxGeometry(pt.x, pt.y, v.geometry.width, v.geometry.height), 'appServer');
+									appServer2.setVertex(true);
+									graph.addCell(appServer2, parent);
+									graph.setSelectionCell(appServer2);
+									break;
+								case '3':
+									var appServerPrototype3 = Ext.create('PaaSMonitor.model.ResourcePrototype', {
+										id : 19,
+										name : 'Apache httd'
+									});
+									var appServer3 = new mxCell(appServerPrototype3.data, new mxGeometry(pt.x, pt.y, v.geometry.width, v.geometry.height), 'appServer');
+									appServer3.setVertex(true);
+									graph.addCell(appServer3, parent);
+									graph.setSelectionCell(appServer3);
+									break;
+							}
+							_window.hide();
+						});
+						
+					_window.show();
+				}
+				else {
+					v1 = v;
+					v1.geometry.x = pt.x;
+					v1.geometry.y = pt.y;
+					
+					graph.addCell(v1, parent);
+	
+					v1.geometry.alternateBounds = new mxRectangle(0, 0, v1.geometry.width, v1.geometry.height);
+					graph.setSelectionCell(v1);
+				}
+				
+				/*
 				v1.geometry.x = pt.x;
 				v1.geometry.y = pt.y;
-
+				
 				graph.addCell(v1, parent);
 
+				v1.geometry.alternateBounds = new mxRectangle(0, 0, v1.geometry.width, v1.geometry.height);
+				*/
+				
 				// if (isTable)
 				// {
-				v1.geometry.alternateBounds = new mxRectangle(0, 0, v1.geometry.width, v1.geometry.height);
+				// v1.geometry.alternateBounds = new mxRectangle(0, 0, v1.geometry.width, v1.geometry.height);
 				// v1.children[0].value.value = ip;
 				// v1.children[1].value.value = jmxPort;
 
@@ -566,7 +632,7 @@ Ext.define('PaaSMonitor.controller.ModelDefController', {
 				model.endUpdate();
 			}
 
-			graph.setSelectionCell(v1);
+			// graph.setSelectionCell(v1);
 
 		};
 		// Creates the image which is used as the sidebar icon (drag source)
