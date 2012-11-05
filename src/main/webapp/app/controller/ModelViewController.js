@@ -18,6 +18,8 @@ Ext.define('PaaSMonitor.controller.ModelViewController', {
 		xtype : 'showhistorydata',
 		autoCreate : true
 	}],
+	
+	appDictory : new Array(),
 
 	init : function(application) {
 
@@ -349,43 +351,101 @@ Ext.define('PaaSMonitor.controller.ModelViewController', {
 		var controller = this;
 		var type = cell.value.typeId;
 		var resourceId = cell.value.id;
-		Ext.Ajax.request({
-			url : 'model/getchildren',
-			method : 'get',
-			timeout : 90000,
-			params : {
-				id : resourceId
-			},
-			success : function(response) {
-				var json = response.responseText;
-				var children = Ext.decode(json);
-				if (children.length != 0) {
-					//add children vertex here
-					graph.getModel().beginUpdate();
-					try {
-						for (var i = 0; i < children.length; i++) {
-							//操作系统的服务和服务组件不在此显示
-							var typeId = children[i].typeId;
-							var type = controller.getTypeString(typeId);
-							var childObject = Ext.create('PaaSMonitor.model.Resource', children[i]);
-							var child = graph.insertVertex(cell, childObject.get('name'), childObject.data, 0, 0, 48, 48, type);
-							var root = graph.getDefaultParent();
-							var parent_to_child = graph.insertEdge(root, null, '', cell, child);
+		if (resourceId == -1) {
+			var appName = cell.value.name;
+			var tmpStore = Ext.data.StoreManager.lookup(appName);
+			tmpStore.each(function(record) {
+				var childObject = Ext.create('PaaSMonitor.model.Resource', record);
+				var child = graph.insertVertex(cell, childObject.get('name'), childObject.data, 0, 0, 48, 48, type);
+				var root = graph.getDefaultParent();
+				var parent_to_child = graph.insertEdge(root, null, '', cell, child);
+			});
+		}
+		else {
+			Ext.Ajax.request({
+				url : 'model/getchildren',
+				method : 'get',
+				timeout : 90000,
+				params : {
+					id : resourceId
+				},
+				success : function(response) {
+					var json = response.responseText;
+					var children = Ext.decode(json);
+					if (children.length != 0) {
+						//add children vertex here
+						graph.getModel().beginUpdate();
+						try {
+							for (var i = 0; i < children.length; i++) {
+								//操作系统的服务和服务组件不在此显示							
+								var typeId = children[i].typeId;
+								var type = controller.getTypeString(typeId);
+								if (typeId != 6) {
+									var childObject = Ext.create('PaaSMonitor.model.Resource', children[i]);
+									var child = graph.insertVertex(cell, childObject.get('name'), childObject.data, 0, 0, 48, 48, type);
+									var root = graph.getDefaultParent();
+									var parent_to_child = graph.insertEdge(root, null, '', cell, child);
+								}
+								else {
+									var resourceName = children[i].name;
+									if (resourceName.indexOf(" Servlet Monitor") == -1 &&
+											resourceName.indexOf(" JSP Monitor") == -1){
+										var childObject = Ext.create('PaaSMonitor.model.Resource', children[i]);
+										var child = graph.insertVertex(cell, childObject.get('name'), childObject.data, 0, 0, 48, 48, type);
+										var root = graph.getDefaultParent();
+										var parent_to_child = graph.insertEdge(root, null, '', cell, child);
+									}
+									else {
+										var startIndex = resourceName.indexOf("//") + 2;
+										var subStr = resourceName.substr(startIndex);
+										var appPath = subStr.split(" ")[0];
+										var tmp = appPath.split("/");
+										var appName = tmp[tmp.length - 1];
+										
+										// 向以resourceName为id的store中添加当前记录
+										if (controller.appDictory[appName] == undefined) {
+											controller.appDictory[appName] = 1;
+											var tmpStore = Ext.create("Ext.data.Store", {
+												storeId : appName,
+												model : 'PaaSMonitor.model.Resource',
+												proxy : {
+													type : 'memory',
+													reader : {
+														type : 'json'
+													}
+												}
+											});
+											tmpStore.add(children[i]);
+											
+											// 向当前graph中，添加appName结点
+											children[i].id = -1;
+											children[i].name = appName;
+											var childObject = Ext.create('PaaSMonitor.model.Resource', children[i]);
+											var child = graph.insertVertex(cell, childObject.get('name'), childObject.data, 0, 0, 48, 48, type);
+											var root = graph.getDefaultParent();
+											var parent_to_child = graph.insertEdge(root, null, '', cell, child);
+										}
+										else {
+											var tmpStore = Ext.data.StoreManager.lookup(appName);
+											tmpStore.add(children[i]);
+										}
+									}
+								}
+							}
+						} finally {
+							graph.getModel().endUpdate();
 						}
-
-					} finally {
-						graph.getModel().endUpdate();
+					} else {
+						//没有子节点
 					}
-				} else {
-					//没有子节点
+					//此处调整layout不起作用，待修改
+					controller.adjustLayout(graph, cell);
+				},
+				failure : function(response) {
+					Ext.MessageBox.alert('错误', '无法加载子节点');
 				}
-				//此处调整layout不起作用，待修改
-				controller.adjustLayout(graph, cell);
-			},
-			failure : function(response) {
-				Ext.MessageBox.alert('错误', '无法加载子节点');
-			}
-		});
+			});
+		}
 	},
 
 	getChildType : function(parent) {
