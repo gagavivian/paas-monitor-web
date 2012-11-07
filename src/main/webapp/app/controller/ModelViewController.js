@@ -480,6 +480,8 @@ Ext.define('PaaSMonitor.controller.ModelViewController', {
 				return 'AppServer';
 			case 6:
 				return 'AppInstance';
+			case null:
+				return 'AppInstance';
 			default:
 				return 'NotFound';
 		}
