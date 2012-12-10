@@ -795,6 +795,9 @@ Ext.define('PaaSMonitor.controller.ModelDefController', {
 		var _addAlertWindow = controller.getAddAlertWindow();
 		var _metricComboBox = _addAlertWindow.down('combobox');
 		var _store = _metricComboBox.getStore();
+		_store.on("load", function(ds, records, o){
+			_metricComboBox.setValue(_store.data.getAt(0).get('templateName'));
+		});
 		
 		var _proxy = _store.getProxy();
 		_proxy.setExtraParam('groupId', Ext.groupId);

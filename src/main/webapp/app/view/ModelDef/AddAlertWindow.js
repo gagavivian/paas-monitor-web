@@ -21,11 +21,13 @@ Ext.define('PaaSMonitor.view.ModelDef.AddAlertWindow', {
 		//在此处添加组件
 		
 		// Create the combo box, attached to the states data store
+		/* for next 
 		var metricComboBox = Ext.create('Ext.form.ComboBox', {
 			fieldLabel: '选择要添加Metric',
 			store: 'EnabledMetricStore',
 			trigerAction: 'all',
 			queryMode: 'remote',
+			editable: false,
 			displayField: 'templateName',
 			valueField: 'id',
 			pageSize: 10
@@ -37,21 +39,18 @@ Ext.define('PaaSMonitor.view.ModelDef.AddAlertWindow', {
 			queryMode: 'local',
 			trigerAction: 'all',
 			displayField: 'condition', 
-			disabled: true,
 			editable: false
 		});
 		
 		var conditionValue = Ext.create('Ext.form.field.Text', {
 			name: 'value',
 			fieldLabel: '值',
-			disabled: true
 		});
 		
 		var valueChangeRadio = Ext.create('Ext.form.field.Radio', {
 			name: 'alert',
 			boxLabel: '当值变化时',
 			inputValue: 'valueChange',
-			checked: true,
 			listeners: {
 				'check':function() {
 					conditionCombobox.setDisable(true);
@@ -64,6 +63,7 @@ Ext.define('PaaSMonitor.view.ModelDef.AddAlertWindow', {
 			name: 'alert',
 			boxLabel: '条件',
 			inputValue: 'condition',
+			checked: true,
 			listeners: {
 				'check':function() {
 					conditionCombobox.setDisable(false);
@@ -88,7 +88,46 @@ Ext.define('PaaSMonitor.view.ModelDef.AddAlertWindow', {
 		});
 		
 		me.items = [metricComboBox, radioGroup, conditionComboBox, conditionValue, emailText];
+		*/
 
+		var metricComboBox = Ext.create('Ext.form.ComboBox', {
+			fieldLabel: '选择要添加Metric',
+			store: 'EnabledMetricStore',
+			trigerAction: 'all',
+			queryMode: 'remote',
+			editable: false,
+			displayField: 'templateName',
+			valueField: 'id',
+			pageSize: 10
+		});
+		
+		var conditionComboBox = Ext.create('Ext.form.ComboBox', {
+			fieldLabel: '条件',
+			labelWidth: 30,
+			store: 'ConditionStore',
+			queryMode: 'local',
+			trigerAction: 'all',
+			displayField: 'condition', 
+			editable: false
+		});
+		
+		var conditionValue = Ext.create('Ext.form.field.Text', {
+			name: 'value',
+			fieldLabel: '值',
+		});
+		
+		var emailText = Ext.create('Ext.form.field.Text', {
+			name: 'email',
+			fieldLabel: 'E-mail',
+			labelWidth: 30,
+			disabled: false,
+			width: 150,
+			vtype: 'email',
+			vtypeText: "邮件地址有误"
+		});
+		
+		me.items = [metricComboBox, conditionComboBox, conditionValue, emailText];
+		
 		var ok = Ext.create('Ext.Button', {
 			id : 'add_alert_button',
 			text : '添加Alert',

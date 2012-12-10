@@ -1,5 +1,5 @@
 Ext.define('PaaSMonitor.store.ConditionStore', {
-	extend : 'Ext.data.Store',
+	extend : 'Ext.data.ArrayStore',
 
 	constructor : function(cfg) {
 		var me = this;
@@ -7,18 +7,8 @@ Ext.define('PaaSMonitor.store.ConditionStore', {
 		me.callParent([ Ext.apply({
 			autoLoad : true,
 			storeId : 'ConditionStore',
-			fields : [ {
-				name : 'condition'
-			} ],
-			data : [ {
-				condition : '='
-			}, {
-				condition : '!='
-			}, {
-				condition : '<'
-			}, {
-				condition : '>'
-			} ]
+			fields : [ 'condition' ],
+			data : [ [ '=' ], [ '!=' ], [ '<' ], [ '>' ] ]
 		}, cfg) ]);
 	}
 });
