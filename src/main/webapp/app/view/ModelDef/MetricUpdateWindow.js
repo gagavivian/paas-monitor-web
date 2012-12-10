@@ -63,7 +63,7 @@ Ext.define('PaaSMonitor.view.ModelDef.MetricUpdateWindow', {
 				store : 'MetricStore',
 				dock : 'bottom',
 				displayInfo : true
-			}],
+			}]
 		});
 
 		me.items = [grid];

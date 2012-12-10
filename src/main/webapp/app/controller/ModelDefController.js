@@ -1,7 +1,7 @@
 Ext.define('PaaSMonitor.controller.ModelDefController', {
 	extend : 'Ext.app.Controller',
 
-	views : ['ModelDef.ModelDefPanel', 'ModelDef.MetricUpdateWindow', 'ModelDef.ServerTypeSelect'],
+	views : ['ModelDef.ModelDefPanel', 'ModelDef.MetricUpdateWindow', 'ModelDef.ServerTypeSelect', 'ModelDef.AddAlertWindow'],
 
 	refs : [{
 		ref : 'defPanel',
@@ -16,6 +16,11 @@ Ext.define('PaaSMonitor.controller.ModelDefController', {
 		ref : 'serverTypeSelect',
 		selector : 'servertypeselect',
 		xtype : 'servertypeselect',
+		autoCreate : true
+	}, {
+		ref : 'addAlertWindow',
+		selector : 'addalertwindow',
+		xtype : 'addalertwindow',
 		autoCreate : true
 	}],
 
@@ -400,6 +405,10 @@ Ext.define('PaaSMonitor.controller.ModelDefController', {
 		editor.addAction('add', function(editor, cell) {
 			controller.showMetricList(graph, cell);
 		});
+		
+		editor.addAction('addalert', function(editor, cell) {
+			controller.showAlertWindow(cell);
+		});
 
 		editor.addAction('mapping', function(editor, cell) {
 			/*
@@ -653,6 +662,12 @@ Ext.define('PaaSMonitor.controller.ModelDefController', {
 				menu.addItem('Add Monitoring Metric', 'images/plus.png', function() {
 					editor.execute('add', cell);
 				});
+				
+				menu.addSeparator();
+				
+				menu.addItem('Add metric alert', 'images/alert.png', function() {
+					editor.execute('addalert', cell);
+				});
 
 				menu.addSeparator();
 			}
@@ -678,7 +693,7 @@ Ext.define('PaaSMonitor.controller.ModelDefController', {
 
 		// var url = '/metrics/' + cell.value.getAttributes('id') + '/all';
 		this.metric_being_updated = cell.value.id;
-		var _url = 'metrics/all';
+		// var _url = 'metrics/all';
 
 		var _templateWindow = this.getTemplateWindow();
 		var _grid = _templateWindow.items.first();
@@ -769,5 +784,72 @@ Ext.define('PaaSMonitor.controller.ModelDefController', {
 			model.endUpdate();
 			_window.hide();
 		}
+	},
+	
+	showAlertWindow : function(cell) {
+		var controller = this;
+		var _addAlertWindow = controller.getAddAlertWindow();
+		var _metricComboBox = _addAlertWindow.down('combobox');
+		var _store = _metricComboBox.getStore();
+		
+		var _proxy = _store.getProxy();
+		_proxy.setExtraParam('groupId', Ext.groupId);
+		_proxy.setExtraParam('resourcePrototypeId', cell.value.id);
+
+		_store.load({
+			params : {
+				start : 0,
+				limit : 10,
+				page : 1
+			}
+		});
+		_pagingtoolbar.moveFirst();
+		
+		_addAlertWindow.show();
+	},
+	
+	addAlert : function(button) {
+		var metricCombo = button.up('window').down('combobox');
+		var radioGroup = button.up('window').down('radiogroup');
+		
+		var metric = metricCombo.getValue();
+		var alertType = radioGroup.getValue();
+		var _type;
+		
+		var conditionComboBox = radioGroup.down('combobox');
+		var _condition = 'null';
+		var valueTextarea = radioGroup.down('textarea');
+		var _value = 0;
+		if (conditionn == 'valueChange') {
+			_type = 0;
+		}
+		else if (condition == 'condition') {
+			_type = 1;
+			_condition = conditionComboBox.getValue();
+			_value = valueTextarea.getValue();
+		}
+		else {
+			_type = 2;
+		}
+		
+		var _email = button.up('window').down('textarea').getValue();
+		Ext.Ajax.request({
+			url : 'add_alert',
+			params : {
+				groupId : Ext.groupId,
+				resourcePrototypeId : this.metric_being_updated,
+				type : _type,
+				condition : _condition,
+				value : _value,
+				email : _email
+			},
+			success : function() {
+				Ext.Msg.alert('成功', '添加成功！');
+				button.up('window').hide();
+			},
+			failure : function(response) {
+				Ext.Msg.alert('失败', response.responseText);
+			}
+		});
 	}
 });
