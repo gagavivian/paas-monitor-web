@@ -39,6 +39,7 @@ public class AddAlert {
 	public ResponseEntity<String> generateMetrics(
 			@RequestParam("groupId") Integer groupId,
 			@RequestParam("resourcePrototypeId") Integer resourcePrototypeId,
+			@RequestParam("metricId") Integer metricId,
 			@RequestParam("type") Integer type,
 			@RequestParam("condition") String condition,
 			@RequestParam("value") String value,

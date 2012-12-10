@@ -36,6 +36,10 @@ Ext.define('PaaSMonitor.controller.ModelDefController', {
 
 			'#select_type_server' : {
 				click : this.chooseAppServerType
+			},
+			
+			'#add_alert_button' : {
+				click : this.addAlert
 			}
 		});
 
@@ -803,27 +807,27 @@ Ext.define('PaaSMonitor.controller.ModelDefController', {
 				page : 1
 			}
 		});
-		_pagingtoolbar.moveFirst();
 		
 		_addAlertWindow.show();
 	},
 	
 	addAlert : function(button) {
 		var metricCombo = button.up('window').down('combobox');
+		var _metricId = metricCombo.getValue();
 		var radioGroup = button.up('window').down('radiogroup');
 		
 		var metric = metricCombo.getValue();
 		var alertType = radioGroup.getValue();
 		var _type;
 		
-		var conditionComboBox = radioGroup.down('combobox');
+		var conditionComboBox = button.up('window').items[2];
 		var _condition = 'null';
-		var valueTextarea = radioGroup.down('textarea');
+		var valueTextarea = radioGroup.down('textfield');
 		var _value = 0;
-		if (conditionn == 'valueChange') {
+		if (alertType == 'valueChange') {
 			_type = 0;
 		}
-		else if (condition == 'condition') {
+		else if (alertType == 'condition') {
 			_type = 1;
 			_condition = conditionComboBox.getValue();
 			_value = valueTextarea.getValue();
@@ -832,12 +836,13 @@ Ext.define('PaaSMonitor.controller.ModelDefController', {
 			_type = 2;
 		}
 		
-		var _email = button.up('window').down('textarea').getValue();
+		var _email = button.up('window').items.last().getValue();
 		Ext.Ajax.request({
 			url : 'add_alert',
 			params : {
 				groupId : Ext.groupId,
 				resourcePrototypeId : this.metric_being_updated,
+				metricId: _metricId,
 				type : _type,
 				condition : _condition,
 				value : _value,

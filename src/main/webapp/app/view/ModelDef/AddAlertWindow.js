@@ -2,13 +2,13 @@ Ext.define('PaaSMonitor.view.ModelDef.AddAlertWindow', {
 	extend : 'Ext.window.Window',
 	alias : 'widget.addalertwindow',
 	
-	requires : ['PaaSMonitor.store.CustomedMetricStore', 'PaaSMonitor.store.ConditionStore'],
+	requires : ['PaaSMonitor.store.EnabledMetricStore', 'PaaSMonitor.store.ConditionStore'],
 
 	id : 'AddAlertWindow',
 
-	layout : 'fit',
-	height : 250,
-	width : 400,
+	layout : 'form',
+	height : 400,
+	width : 600,
 	title : '添加Alert',
 
 	closeAction : 'hide',
@@ -22,39 +22,36 @@ Ext.define('PaaSMonitor.view.ModelDef.AddAlertWindow', {
 		
 		// Create the combo box, attached to the states data store
 		var metricComboBox = Ext.create('Ext.form.ComboBox', {
-			fieldLabel: '选择要添加Metric的Alert',
-			store: 'CustomedMetricStore',
-			trigerAction: all,
+			fieldLabel: '选择要添加Metric',
+			store: 'EnabledMetricStore',
+			trigerAction: 'all',
 			queryMode: 'remote',
-			displayField: 'name',
+			displayField: 'templateName',
 			valueField: 'id',
-			dockedItems : [{
-				xtype : 'pagingtoolbar',
-				store : 'CustomedMetricStore',
-				dock : 'bottom',
-				displayInfo : true
-			}]
+			pageSize: 10
 		});
 		
 		var conditionComboBox = Ext.create('Ext.form.ComboBox', {
 			fieladLabel: '条件',
 			store: 'ConditionStore',
 			queryMode: 'local',
-			trigerAction: all,
+			trigerAction: 'all',
 			displayField: 'condition', 
 			disabled: true,
 			editable: false
 		});
 		
-		var conditionValue = Ext.create('Ext.form.field.TextArea', {
+		var conditionValue = Ext.create('Ext.form.field.Text', {
 			name: 'value',
-			fieldLabel: '',
+			fieldLabel: '值',
 			disabled: true
 		});
 		
 		var valueChangeRadio = Ext.create('Ext.form.field.Radio', {
+			name: 'alert',
 			boxLabel: '当值变化时',
 			inputValue: 'valueChange',
+			checked: true,
 			listeners: {
 				'check':function() {
 					conditionCombobox.setDisable(true);
@@ -64,6 +61,7 @@ Ext.define('PaaSMonitor.view.ModelDef.AddAlertWindow', {
 		});
 		
 		var conditionRadio = Ext.create('Ext.form.field.Radio', {
+			name: 'alert',
 			boxLabel: '条件',
 			inputValue: 'condition',
 			listeners: {
@@ -76,28 +74,20 @@ Ext.define('PaaSMonitor.view.ModelDef.AddAlertWindow', {
 		
 		var radioGroup = Ext.create('Ext.form.RadioGroup', {
 			fieldLabel: '选择Alert的条件',
-			layout: 'column',
-			items: [{
-				columnWidth: .45,
-				items:[conditionRadio, valueChangeRadio]
-			}, {
-				columnWidth: .25,
-				items:[conditionComboBox]
-			}, {
-				columnWidth: .30,
-				items:[conditionValue]
-			}]
+			vertical: true,
+			items: [valueChangeRadio, conditionRadio]
 		});
 		
-		var emailText = Ext.create('Ext.form.field.TextArea', {
+		var emailText = Ext.create('Ext.form.field.Text', {
 			name: 'email',
 			fieldLabel: 'E-mail',
 			disabled: false,
+			width: 150,
 			vtype: 'email',
 			vtypeText: "邮件地址有误"
 		});
 		
-		me.items = [metricComboBox, radioGroup];
+		me.items = [metricComboBox, radioGroup, conditionComboBox, conditionValue, emailText];
 
 		var ok = Ext.create('Ext.Button', {
 			id : 'add_alert_button',

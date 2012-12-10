@@ -9,7 +9,7 @@ Ext.application({
 			'Resource', 'ResourcePrototype', 'ResourcePropertyKey', 'ResourcePropertyValue',
 			'MetricTemplate', 'Metric', 'HistoryData'
 	],
-	stores : ['MenuStore', 'Vim', 'MetricTemplateStore', 'MetricStore', 'CustomedMetricStore', 'HistoryDataStore', 'ConditionStore'],
+	stores : ['MenuStore', 'Vim', 'MetricTemplateStore', 'MetricStore', 'CustomedMetricStore', 'HistoryDataStore', 'ConditionStore', 'EnabledMetricStore'],
 	autoCreateViewport : true,
 	name : 'PaaSMonitor',
 	controllers : ['MenuController', 'MoniteesController', 'ModelDefController', 'ModelViewController'],

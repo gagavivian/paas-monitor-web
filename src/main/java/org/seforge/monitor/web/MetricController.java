@@ -98,6 +98,37 @@ public class MetricController {
         return new ResponseEntity<String>(new JSONSerializer().exclude("*.class").transform(new DateTransformer("MM/dd/yy"), Date.class).serialize(response), returnStatus);
     }
     
+    @RequestMapping(value = "/enabled", method = RequestMethod.GET)
+    public ResponseEntity<String> listEnabledMetrics(@RequestParam("groupId") Integer groupId, @RequestParam("resourcePrototypeId") Integer resourcePrototypeId,
+    		@RequestParam("start") Integer start, @RequestParam("limit") Integer limit ) {
+    	HttpStatus returnStatus;
+    	JsonObjectResponse response = new JsonObjectResponse();
+    	if( groupId == null){
+    		returnStatus = HttpStatus.BAD_REQUEST;
+            response.setMessage("No ResourcePrototype Id provided.");
+            response.setSuccess(false);
+            response.setTotal(0L);
+    	}else{
+    		try {
+                ResourcePrototype prototype = ResourcePrototype.findResourcePrototype(resourcePrototypeId);
+                ResourceGroup group = ResourceGroup.findResourceGroup(groupId);
+                int total = metricManager.getEnabledMetricCount(prototype, group);
+                List data  = metricManager.getEnabledMetrics(prototype, group, start, limit);     
+                returnStatus = HttpStatus.OK;
+                response.setMessage("All Metric Templates found");
+                response.setSuccess(true);
+                response.setTotal(total);
+                response.setData(data);
+            } catch (Exception e) {
+            	returnStatus = HttpStatus.INTERNAL_SERVER_ERROR;
+                response.setMessage(e.getMessage());
+                response.setSuccess(false);
+                response.setTotal(0L);
+            }
+    	}        
+        return new ResponseEntity<String>(new JSONSerializer().exclude("*.class").transform(new DateTransformer("MM/dd/yy"), Date.class).serialize(response), returnStatus);
+    }
+    
     // request for the customed metrics
     @RequestMapping(value = "/customed", method = RequestMethod.GET)
     public ResponseEntity<String> listCustomedMetrics(@RequestParam("resourceId") Integer resourceId,
