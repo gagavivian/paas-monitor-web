@@ -91,6 +91,7 @@ Ext.define('PaaSMonitor.view.ModelDef.AddAlertWindow', {
 		*/
 
 		var metricComboBox = Ext.create('Ext.form.ComboBox', {
+			id: 'alert-metric',
 			fieldLabel: '选择要添加Metric',
 			store: 'EnabledMetricStore',
 			trigerAction: 'all',
@@ -102,6 +103,7 @@ Ext.define('PaaSMonitor.view.ModelDef.AddAlertWindow', {
 		});
 		
 		var conditionComboBox = Ext.create('Ext.form.ComboBox', {
+			id: 'alert-comparator',
 			fieldLabel: '条件',
 			labelWidth: 30,
 			store: 'ConditionStore',
@@ -112,11 +114,13 @@ Ext.define('PaaSMonitor.view.ModelDef.AddAlertWindow', {
 		});
 		
 		var conditionValue = Ext.create('Ext.form.field.Text', {
+			id: 'alert-value',
 			name: 'value',
 			fieldLabel: '值',
 		});
 		
 		var emailText = Ext.create('Ext.form.field.Text', {
+			id: 'alert-email',
 			name: 'email',
 			fieldLabel: 'E-mail',
 			labelWidth: 30,

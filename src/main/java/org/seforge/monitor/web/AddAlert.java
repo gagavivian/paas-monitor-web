@@ -5,11 +5,15 @@ import java.util.Date;
 import java.util.List;
 
 import org.hyperic.hq.hqapi1.types.LastMetricData;
+import org.seforge.monitor.domain.Condition;
+import org.seforge.monitor.domain.Constraint;
 import org.seforge.monitor.domain.Metric;
 import org.seforge.monitor.domain.ResourceGroup;
+import org.seforge.monitor.manager.ConstraintManager;
 import org.seforge.monitor.manager.MetricManager;
 import org.seforge.monitor.domain.ResourcePrototype;
 import org.seforge.monitor.extjs.JsonObjectResponse;
+import org.seforge.monitor.hqapi.AlertDefinitionBuilder.AlertPriority;
 import org.seforge.monitor.hqapi.HQProxy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -32,6 +36,9 @@ public class AddAlert {
 
 	@Autowired
 	private MetricManager metricManager;
+	
+	@Autowired
+	private ConstraintManager constraintManager;
 
 	// thd PathVariable id is the id of a resourcePrototype
 
@@ -42,7 +49,7 @@ public class AddAlert {
 			@RequestParam("metricId") Integer metricId,
 			@RequestParam("type") Integer type,
 			@RequestParam("condition") String condition,
-			@RequestParam("value") String value,
+			@RequestParam("value") Double value,
 			@RequestParam("email") String email) {
 
 		HttpStatus returnStatus;
@@ -54,11 +61,31 @@ public class AddAlert {
 			response.setTotal(0L);
 		} else {
 			try {
-
+				String metric = Metric.findMetric(metricId).getMetricTemplate().getName();
+				
+				Condition con = new Condition();
+				con.setThresholdMetric(metric);
+				con.setThresholdComparator(condition);
+				con.setThresholdValue(value);
+				
+				
+				Constraint constraint = new Constraint();
+				constraint.setName(metric + "-alert");
+				constraint.setDescription(metric + "-alert");
+				constraint.setCondition(con);
+				constraint.setPriority(AlertPriority.LOW.getPriority());
+				constraint.setActive(true);
+				constraint.setOtherReceipts(email);
+				ResourceGroup rg = ResourceGroup.findResourceGroup(groupId);
+				ResourcePrototype rp = ResourcePrototype.findResourcePrototype(resourcePrototypeId);
+				
+				constraint.setResourceGroup(rg);
+				constraint.setResourcePrototype(rp);
 				// 申请添加Alert功能
-
+				constraintManager.addNewConstraint(constraint);
+				
 				returnStatus = HttpStatus.OK;
-				response.setMessage("All Metric Templates found");
+				response.setMessage("The constraint has been added successfully");
 				response.setSuccess(true);
 				response.setTotal(0L);
 				response.setData(null);

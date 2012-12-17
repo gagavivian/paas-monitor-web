@@ -1,5 +1,7 @@
 package org.seforge.monitor.web;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -34,10 +36,10 @@ public class ModelController {
 		entities = resourceManager.getPhymsByGroup(groupId);
 		return new ResponseEntity<String>(new JSONSerializer()
 				.exclude("*.class")
-				.include("resourcePropertyValues")
+				.exclude("resourcePropertyValues")
 				.exclude("resourcePropertyValues.resourcePropertyKey.resourcePrototype")
 				.transform(new DateTransformer("MM/dd/yy"), Date.class)
-				.serialize(entities), responseHeaders, HttpStatus.OK);
+				.deepSerialize(entities), responseHeaders, HttpStatus.OK);
 
 	}
 	
@@ -54,5 +56,24 @@ public class ModelController {
 				.transform(new DateTransformer("MM/dd/yy"), Date.class)
 				.serialize(entities), responseHeaders, HttpStatus.OK);
 
+	}
+	
+	@RequestMapping(value = "/savemodel", method = RequestMethod.POST)
+	public ResponseEntity<String> saveModel(@RequestParam("content") String content, @RequestParam("groupId") String id, HttpServletRequest request) {		
+		FileWriter fw;
+		try {
+			String path = request.getRealPath("/");
+			System.out.println(path);
+			fw = new FileWriter(path + "/" + id + "-model.xml");
+			fw.write(content,0,content.length());  
+			fw.flush(); 
+			fw.close();
+			return new ResponseEntity<String>("ok", HttpStatus.OK);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return new ResponseEntity<String>("ok", HttpStatus.INTERNAL_SERVER_ERROR);
+		}		
+		
 	}
 }

@@ -384,12 +384,13 @@ Ext.define('PaaSMonitor.controller.ModelViewController', {
 					if (children.length != 0) {
 						graph.getModel().beginUpdate();
 						try {
+							
 							if (resourceTypeId == 2) {
 								for (var i = 0; i < children.length; i++) {
 									//操作系统的服务和服务组件不在此显示							
 									var typeId = children[i].typeId;
 									var type = controller.getTypeString(typeId);
-									if (typeId != 6) {
+									if (typeId != 5) {
 										var storeId = 'system-service';
 										var tmpStore = Ext.data.StoreManager.lookup(storeId);
 										if (tmpStore == undefined || tmpStore == null) {
@@ -559,12 +560,14 @@ Ext.define('PaaSMonitor.controller.ModelViewController', {
 								}
 							}
 							else {
+								for (var i = 0; i < children.length; i++) {
 									var typeId = children[i].typeId;
 									var type = controller.getTypeString(typeId);
 									var childObject = Ext.create('PaaSMonitor.model.Resource', children[i]);
 									var child = graph.insertVertex(cell, childObject.get('name'), childObject.data, 0, 0, 48, 48, type);
 									var root = graph.getDefaultParent();
 									var parent_to_child = graph.insertEdge(root, null, '', cell, child);
+								}
 							}
 						} finally {
 							graph.getModel().endUpdate();
@@ -658,8 +661,6 @@ Ext.define('PaaSMonitor.controller.ModelViewController', {
 			}
 		});
 
-		historyDataWindow.show();
-
-		// }
+		historyDataWindow.show();		
 	}
 });

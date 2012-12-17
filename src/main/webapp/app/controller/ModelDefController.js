@@ -26,10 +26,10 @@ Ext.define('PaaSMonitor.controller.ModelDefController', {
 
 	init : function(application) {
 		this.control({
-			/*'modeldefpanel' : {
+			'modeldefpanel' : {
 			 activate : this.loadModelDef
-			 }
-			 */
+			},
+			 
 			'#update_metrics_button' : {
 				click : this.updateMetrics
 			},
@@ -59,7 +59,7 @@ Ext.define('PaaSMonitor.controller.ModelDefController', {
 			msg : "Loading"
 		});
 		loadMask.show();
-		mxUtils.get('model.xml', function(req) {
+		mxUtils.get(Ext.groupId + '-model.xml', function(req) {
 			loadMask.hide();
 			var root = req.getDocumentElement();
 			var dec = new mxCodec(root);
@@ -332,7 +332,7 @@ Ext.define('PaaSMonitor.controller.ModelDefController', {
 		// attribute.setConnectable(false);
 
 		var phymPrototype = Ext.create('PaaSMonitor.model.ResourcePrototype', {
-			id : 1,
+			typeId : 1,
 			name : 'VMware Vsphere'
 		});
 		var phym = new mxCell(phymPrototype.data, new mxGeometry(0, 0, 200, 54), 'phym');
@@ -340,7 +340,7 @@ Ext.define('PaaSMonitor.controller.ModelDefController', {
 		this.addSidebarIcon(graph, sidebar, phym, 'images/icons48/phym.png');
 
 		var vimPrototype = Ext.create('PaaSMonitor.model.ResourcePrototype', {
-			id : 2,
+			typeId : 2,
 			name : 'Win32'
 		});
 		var vim = new mxCell(vimPrototype.data, new mxGeometry(0, 0, 200, 54), 'vim');
@@ -348,7 +348,7 @@ Ext.define('PaaSMonitor.controller.ModelDefController', {
 		this.addSidebarIcon(graph, sidebar, vim, 'images/icons48/bigvim.png');
 
 		var platformServicePrototype = Ext.create('PaaSMonitor.model.ResourcePrototype', {
-			id : 3,
+			typeId : 3,
 			name : 'Mysql'
 		});
 		var platformService = new mxCell(platformServicePrototype.data, new mxGeometry(0, 0, 200, 54), 'service');
@@ -364,7 +364,7 @@ Ext.define('PaaSMonitor.controller.ModelDefController', {
 		this.addSidebarIcon(graph, sidebar, appServer, 'images/icons48/appserver.png');
 
 		var appPrototype = Ext.create('PaaSMonitor.model.ResourcePrototype', {
-			id : 1,
+			typeId : 1,
 			name : 'VMware Vsphere'
 		});
 		var app = new mxCell(appPrototype.data, new mxGeometry(0, 0, 200, 54), 'app');
@@ -372,7 +372,7 @@ Ext.define('PaaSMonitor.controller.ModelDefController', {
 		this.addSidebarIcon(graph, sidebar, app, 'images/icons48/app.png');
 
 		var appInstancePrototype = Ext.create('PaaSMonitor.model.ResourcePrototype', {
-			id : 1,
+			typeId : 1,
 			name : 'App Instance'
 		});
 		var appInstance = new mxCell(appInstancePrototype.data, new mxGeometry(0, 0, 200, 54), 'appInstance');
@@ -380,7 +380,7 @@ Ext.define('PaaSMonitor.controller.ModelDefController', {
 		this.addSidebarIcon(graph, sidebar, appInstance, 'images/icons48/appInstance.png');
 
 		var paasUserPrototype = Ext.create('PaaSMonitor.model.ResourcePrototype', {
-			id : 1,
+			typeId : 1,
 			name : 'VMware Vsphere'
 		});
 		var paasUser = new mxCell(paasUserPrototype.data, new mxGeometry(0, 0, 200, 54), 'paasUser');
@@ -414,18 +414,20 @@ Ext.define('PaaSMonitor.controller.ModelDefController', {
 			controller.showAlertWindow(cell);
 		});
 
+	  	/*
 		editor.addAction('mapping', function(editor, cell) {
-			/*
+			
 			if (cell == null)
 			{
 			cell = graph.getSelectionCell();
 			}
-			*/
+			
 			// if (graph.isHtmlLabel(cell))
 			// {
 			mapping(graph, cell);
 			// }
 		});
+		*/
 		this.addToolbarButton(editor, toolbar, 'delete', 'Delete', 'images/delete2.png');
 
 		toolbar.appendChild(spacer.cloneNode(true));
@@ -448,12 +450,12 @@ Ext.define('PaaSMonitor.controller.ModelDefController', {
 			var enc = new mxCodec(mxUtils.createXmlDocument());
 			var node = enc.encode(editor.graph.getModel());
 			textarea.value = mxUtils.getPrettyXml(node);
-			showModalWindow('XML', textarea, 410, 440);
+			controller.showModalWindow('XML', textarea, 410, 440);
 		});
 		this.addToolbarButton(editor, toolbar, 'export', 'Export XML', 'images/export1.png');
 
 		editor.addAction('save', function(editor, cell) {
-			saveModel(editor);
+			controller.saveModel(editor);
 		});
 		this.addToolbarButton(editor, toolbar, 'save', 'Save Model', 'images/export1.png');
 
@@ -708,7 +710,7 @@ Ext.define('PaaSMonitor.controller.ModelDefController', {
 
 		var _proxy = _store.getProxy();
 		_proxy.setExtraParam('groupId', Ext.groupId);
-		_proxy.setExtraParam('resourcePrototypeId', cell.value.id);
+		_proxy.setExtraParam('resourcePrototypeId', cell.value.typeId);
 
 		_store.load({
 			params : {
@@ -762,19 +764,19 @@ Ext.define('PaaSMonitor.controller.ModelDefController', {
 			switch(_radioGroup.getChecked()[0].inputValue) {
 				case '1':
 					appServerPrototype = Ext.create('PaaSMonitor.model.ResourcePrototype', {
-						id : 18,
+						typeId : 18,
 						name : 'Apache Tomcat 6.0'
 					});
 					break;
 				case '2':
 					appServerPrototype = Ext.create('PaaSMonitor.model.ResourcePrototype', {
-						id : 12,
+						typeId : 12,
 						name : 'Apache Tomcat 7.0'
 					});
 					break;
 				case '3':
 					appServerPrototype = Ext.create('PaaSMonitor.model.ResourcePrototype', {
-						id : 11,
+						typeId : 11,
 						name : 'Apache httpd'
 					});
 					break;
@@ -802,6 +804,7 @@ Ext.define('PaaSMonitor.controller.ModelDefController', {
 		var _proxy = _store.getProxy();
 		_proxy.setExtraParam('groupId', Ext.groupId);
 		_proxy.setExtraParam('resourcePrototypeId', cell.value.id);
+		this.rpId = cell.value.id;
 
 		_store.load({
 			params : {
@@ -815,36 +818,40 @@ Ext.define('PaaSMonitor.controller.ModelDefController', {
 	},
 	
 	addAlert : function(button) {
+		var awindow = button.up('window');
 		var metricCombo = button.up('window').down('combobox');
 		var _metricId = metricCombo.getValue();
-		var radioGroup = button.up('window').down('radiogroup');
+	//	var radioGroup = button.up('window').down('radiogroup');
 		
 		var metric = metricCombo.getValue();
-		var alertType = radioGroup.getValue();
+		//var alertType = radioGroup.getValue();
 		var _type;
 		
-		var conditionComboBox = button.up('window').items[2];
+		var conditionComboBox = awindow.down('#alert-comparator');
 		var _condition = 'null';
-		var valueTextarea = radioGroup.down('textfield');
+		var valueTextarea = awindow.down('#alert-value');
 		var _value = 0;
+		/*
 		if (alertType == 'valueChange') {
 			_type = 0;
 		}
 		else if (alertType == 'condition') {
+			*/
 			_type = 1;
 			_condition = conditionComboBox.getValue();
 			_value = valueTextarea.getValue();
-		}
+		
+		/*}
 		else {
 			_type = 2;
-		}
+		}*/
 		
 		var _email = button.up('window').items.last().getValue();
 		Ext.Ajax.request({
 			url : 'add_alert',
 			params : {
 				groupId : Ext.groupId,
-				resourcePrototypeId : this.metric_being_updated,
+				resourcePrototypeId : this.rpId,
 				metricId: _metricId,
 				type : _type,
 				condition : _condition,
@@ -859,5 +866,57 @@ Ext.define('PaaSMonitor.controller.ModelDefController', {
 				Ext.Msg.alert('失败', response.responseText);
 			}
 		});
+	},
+	
+	saveModel: function(editor) {
+		var enc = new mxCodec(mxUtils.createXmlDocument());
+		var node = enc.encode(editor.graph.getModel());
+		var xml = mxUtils.getPrettyXml(node);
+		var ajax = Ext.Ajax.request({
+			url : 'model/savemodel',
+			params : {
+				content : xml,
+				groupId : Ext.groupId
+			},
+			method : 'post',
+			success : function(response) {
+				alert("The model has been save successfully!");
+			},
+			failure : function(response) {
+				alert("The model has been save successfully!");
+			}
+		});
+	},
+	
+	showModalWindow: function (title, content, width, height) {
+		var background = document.createElement('div');
+		background.style.position = 'absolute';
+		background.style.left = '0px';
+		background.style.top = '0px';
+		background.style.right = '0px';
+		background.style.bottom = '0px';
+		background.style.background = 'black';
+		mxUtils.setOpacity(background, 50);
+		document.body.appendChild(background);
+	
+		if(mxClient.IS_IE) {
+			new mxDivResizer(background);
+		}
+	
+		var x = Math.max(0, document.body.scrollWidth / 2 - width / 2);
+		var y = Math.max(10, (document.body.scrollHeight || document.documentElement.scrollHeight) / 2 - height * 2 / 3);
+		var wnd = new mxWindow(title, content, x, y, width, height, false, true);
+		wnd.setClosable(true);
+	
+		// Fades the background out after after the window has been closed
+		wnd.addListener(mxEvent.DESTROY, function(evt) {
+			mxEffects.fadeOut(background, 50, true, 10, 30, true);
+		});
+	
+		wnd.setVisible(true);
+	
+		return wnd;
 	}
+
+
 });

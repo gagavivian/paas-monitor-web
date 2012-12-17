@@ -106,7 +106,7 @@ public class ResourceController {
     	}else{
     		try {
                 Resource resource = Resource.findResource(id);
-                Set<MetricTemplate> templates = resource.getResourcePrototype().getMetricTemplates();           
+                List<MetricTemplate> templates = resource.getResourcePrototype().getMetricTemplates();           
                 returnStatus = HttpStatus.OK;
                 response.setMessage("Metric Templates found");
                 response.setSuccess(true);

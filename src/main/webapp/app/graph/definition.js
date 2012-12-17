@@ -7,55 +7,6 @@ var addAttributeWin;
 var showPropertyWin;
 
 
-function showModalWindow(title, content, width, height) {
-	var background = document.createElement('div');
-	background.style.position = 'absolute';
-	background.style.left = '0px';
-	background.style.top = '0px';
-	background.style.right = '0px';
-	background.style.bottom = '0px';
-	background.style.background = 'black';
-	mxUtils.setOpacity(background, 50);
-	document.body.appendChild(background);
-
-	if(mxClient.IS_IE) {
-		new mxDivResizer(background);
-	}
-
-	var x = Math.max(0, document.body.scrollWidth / 2 - width / 2);
-	var y = Math.max(10, (document.body.scrollHeight || document.documentElement.scrollHeight) / 2 - height * 2 / 3);
-	var wnd = new mxWindow(title, content, x, y, width, height, false, true);
-	wnd.setClosable(true);
-
-	// Fades the background out after after the window has been closed
-	wnd.addListener(mxEvent.DESTROY, function(evt) {
-		mxEffects.fadeOut(background, 50, true, 10, 30, true);
-	});
-
-	wnd.setVisible(true);
-
-	return wnd;
-};
-
-function saveModel(editor) {
-	var enc = new mxCodec(mxUtils.createXmlDocument());
-	var node = enc.encode(editor.graph.getModel());
-	var xml = mxUtils.getPrettyXml(node);
-	var ajax = Ext.Ajax.request({
-		url : 'jmx/savemodel',
-		params : {
-			content : xml
-		},
-		method : 'post',
-		success : function(response) {
-			alert("The model has been save successfully!");
-		},
-		failure : function(response) {
-			alert("The model has been save successfully!");
-		}
-	});
-}
-
 
 
 
