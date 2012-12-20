@@ -9,6 +9,7 @@ import java.util.Set;
 import org.seforge.monitor.domain.Metric;
 import org.seforge.monitor.domain.MetricTemplate;
 import org.seforge.monitor.domain.Resource;
+import org.seforge.monitor.domain.ResourceGroup;
 import org.seforge.monitor.domain.Vim;
 import org.seforge.monitor.exception.DuplicateEntityException;
 import org.seforge.monitor.exception.NotMonitoredException;
@@ -122,6 +123,31 @@ public class ResourceController {
         return new ResponseEntity<String>(new JSONSerializer().exclude("*.class").exclude("data.resourcePrototype").transform(new DateTransformer("MM/dd/yy"), Date.class).serialize(response), returnStatus);
     }
     
+    @RequestMapping(value = "/propogateMetricTemplates", method = RequestMethod.GET)
+    public ResponseEntity<String> propogate() {
+    	HttpStatus returnStatus;    	
+    	proxy.propogateMetricTemplatesForAll();
+    	returnStatus = HttpStatus.OK;        
+        return new ResponseEntity<String>("Propogate Successfully!", returnStatus);
+    }
+    
+    
+    @RequestMapping(value = "/allocateGroup", method = RequestMethod.GET)
+    public ResponseEntity<String> allocate(@RequestParam("resourceId") Integer resourceId, @RequestParam("groupId") Integer groupId) {
+    	HttpStatus returnStatus;
+    	Resource r = Resource.findResource(resourceId);
+    	ResourceGroup g = ResourceGroup.findResourceGroup(groupId);
+    	if(g == null){
+    		g = new ResourceGroup();
+    		g.setId(groupId);
+    		g.persist();
+    	}
+    	r.getResourceGroups().add(g);  
+    	r.merge();
+    	
+    	returnStatus = HttpStatus.OK;        
+        return new ResponseEntity<String>("Propogate Successfully!", returnStatus);
+    }
     
  
 }

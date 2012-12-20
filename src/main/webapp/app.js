@@ -21,7 +21,7 @@ Ext.application({
         	if(!win){
             win = Ext.create('PaaSMonitor.view.Login').show();
         	}*/
-        	Ext.groupId = 1;
+        	Ext.groupId = 0;
 		}		
 		
 		var hideMask = function() {

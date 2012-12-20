@@ -33,13 +33,18 @@ public class ModelController {
 		HttpHeaders responseHeaders = new HttpHeaders();
 		responseHeaders.add("Content-Type", "application/json");
 		List<Resource> entities;
-		entities = resourceManager.getPhymsByGroup(groupId);
+		if(groupId == 0){
+			entities = resourceManager.getAllPhyms();
+		}else{
+			entities = resourceManager.getAppServersByGroup(groupId);
+		}		
 		return new ResponseEntity<String>(new JSONSerializer()
 				.exclude("*.class")
 				.exclude("resourcePropertyValues")
 				.exclude("resourcePropertyValues.resourcePropertyKey.resourcePrototype")
+				.include("children")
 				.transform(new DateTransformer("MM/dd/yy"), Date.class)
-				.deepSerialize(entities), responseHeaders, HttpStatus.OK);
+				.serialize(entities), responseHeaders, HttpStatus.OK);
 
 	}
 	
@@ -51,7 +56,7 @@ public class ModelController {
 		entities = Resource.findResource(id).getChildren();
 		return new ResponseEntity<String>(new JSONSerializer()
 				.exclude("*.class")
-				.include("resourcePropertyValues")
+				.include("resourcePropertyValues")				
 				.exclude("resourcePropertyValues.resourcePropertyKey.resourcePrototype")
 				.transform(new DateTransformer("MM/dd/yy"), Date.class)
 				.serialize(entities), responseHeaders, HttpStatus.OK);

@@ -183,23 +183,13 @@ Ext.define('PaaSMonitor.controller.ModelViewController', {
 		var graph = editor.graph;
 		var model = graph.model;
 
-		graph.removeCells(graph.getChildVertices(graph.getDefaultParent()));
-
-		// constructToolbar(toolbar, graph);
-
-		var hierarchicalLayout = new mxHierarchicalLayout(graph, mxConstants.DIRECTION_WEST);
-		hierarchicalLayout.intraCellSpacing = 50;
-		hierarchicalLayout.interRankCellSpacing = 80;
-		var treeLayout = new mxCompactTreeLayout(graph);
-		treeLayout.intraCellSpacing = 50;
-
+		graph.removeCells(graph.getChildVertices(graph.getDefaultParent()));	
 		var parent = graph.getDefaultParent();
 
 		// Load cells and layouts the graph
 		graph.getModel().beginUpdate();
 		try {
-			controller.parseModelData(graph, modelData);
-			treeLayout.execute(parent);
+			controller.parseModelData(graph, modelData);			
 		} finally {
 			graph.getModel().endUpdate();
 		}
@@ -277,11 +267,43 @@ Ext.define('PaaSMonitor.controller.ModelViewController', {
 	parseModelData : function(graph, modelData) {
 		var parent = graph.getDefaultParent();
 		var space = 100;
-		for (var i = 0; i < modelData.length; i++) {
-			var phymObject = Ext.create('PaaSMonitor.model.Resource', modelData[i]);
-			var phym = graph.insertVertex(parent, phymObject.name, phymObject.data, 30, space * i, 48, 48, 'Phym');
-			//            this.expandChildren(graph, os, null, 'Vim');
+		//呈现全局视图
+		if(Ext.groupId == 0){
+			for (var i = 0; i < modelData.length; i++) {
+				var phymObject = Ext.create('PaaSMonitor.model.Resource', modelData[i]);
+				var phym = graph.insertVertex(parent, phymObject.name, phymObject.data, 30, space * i, 48, 48, 'Phym');
+				//            this.expandChildren(graph, os, null, 'Vim');
+			}
+		}		
+		//以组管理员身份进入时，第一层次为各种应用服务器
+		else{
+			var tomcatParent = new Object();
+			tomcatParent.name = 'Tomcat';
+			tomcatParent.children = new Array();
+			tomcatParent.typeId = -1;
+			
+			var apacheParent = new Object();
+			apacheParent.name = 'Apache';
+			apacheParent.children = new Array();
+			apacheParent.typeId = -1;
+			
+			for (var i = 0; i < modelData.length; i++) {
+				var serverObject = modelData[i];
+				var proId = serverObject.resourcePrototype.id;
+				if(proId == 11){					
+					apacheParent.children.push(serverObject);
+				}else{
+					tomcatParent.children.push(serverObject);
+				}				
+			}	
+			if(apacheParent.children.length!=0){
+				var apacheFolder = graph.insertVertex(parent, 'Apache', apacheParent, 30, 30, 48, 48, 'ServerFolder');	
+			}	
+			if(tomcatParent.children.length!=0){
+				var tomcatFolder = graph.insertVertex(parent, 'Tomcat', tomcatParent, 30, 30+(space*apacheParent.children.length), 48, 48, 'ServerFolder');
+			}				
 		}
+		
 	},
 
 	createMoniteeStyleObject : function(image) {
@@ -325,6 +347,8 @@ Ext.define('PaaSMonitor.controller.ModelViewController', {
 		graph.getStylesheet().putCellStyle('PaasUser', paasUserStyle);
 		collectionStyle = createMoniteeStyleObject(image_path + 'collection.jpg');
 		graph.getStylesheet().putCellStyle('Collection', collectionStyle);
+		serverFolderStyle = createMoniteeStyleObject(image_path + 'serverfolder.png');
+		graph.getStylesheet().putCellStyle('ServerFolder', serverFolderStyle);
 		style = graph.stylesheet.getDefaultEdgeStyle();
 		style[mxConstants.STYLE_LABEL_BACKGROUNDCOLOR] = '#FFFFFF';
 		style[mxConstants.STYLE_STROKEWIDTH] = '2';
@@ -348,12 +372,99 @@ Ext.define('PaaSMonitor.controller.ModelViewController', {
 		} else
 			return;
 	},
+	
+	
+	
+	addChildrenVertex: function(graph, cell){
+		var controller = this;
+		var xspace = 150;
+		var space = 100;		
+		var geox = cell.geometry.x;
+		var geoy = cell.geometry.y;		
+		var children = cell.value.children;
+		if(children != null){
+			graph.getModel().beginUpdate();
+			try {						
+				for( var i in children){
+					var root = graph.getDefaultParent();
+					var child = graph.insertVertex(root, children[i].name,  children[i], geox+xspace, geoy+space*i, 48, 48, controller.getTypeString(children[i].typeId));
+					var parent_to_child = graph.insertEdge(root, null, '', cell, child);
+				}				
+			}finally {
+				graph.getModel().endUpdate();
+			}			
+		}
+	},
+	
+	
+	generateObject: function(name, typeId){
+		var o = new Object();
+		o.name = name;
+		o.typeId = typeId;
+		o.children = new Array();
+		return o;
+	},
 
-	expandChildren : function(graph, cell, leaf) {
+	expandChildren : function(graph, cell, leaf) {		
 		//展开以cell为parent的子节点
 		//leaf属性表示展开后叶子节点的类型，如果没有leaf参数，默认只展开一层
 		var controller = this;
 		var resourceId = cell.value.id;
+		//所属的资源级别
+		var typeId = cell.value.typeId;
+		//对应的prototype的id
+		if(cell.value.resourcePrototype !=null){
+			var proTypeId = cell.value.resourcePrototype.id;
+		}
+		
+		var children = cell.value.children;			
+		
+		//如果cell中已经包含了子节点的数据，则直接展开
+		if(children != null && children.length!=0){			
+			//如果是app server需要对节点进行重组
+			if(proTypeId == 12 || proTypeId ==13){
+				var serverConfigObject = new Object();
+				var appMap = new Array();
+				var appObject = controller.generateObject("Apps", -1);
+				var threadObject = controller.generateObject("Thread Pools", -1);		
+				var processorObject = controller.generateObject("Global Request Processor", -1);				
+																		
+				for (var i = 0; i < children.length; i++) {
+					var name = children[i].name;
+					if(name.indexOf(threadObject.name) != -1){
+						threadObject.children.push(children[i]);						
+					}
+					if(name.indexOf(processorObject.name) != -1){
+						processorObject.children.push(children[i]);						
+					}else{
+						appObject.children.push(children[i]);
+						/*
+						var startIndex = name.indexOf("//") + 2;
+						var subStr = name.substr(startIndex);
+						var appPath = subStr.split(" ")[0];
+						var tmp = appPath.split("/");
+						var appName = tmp[tmp.length - 1];						
+						if(appMap[appName] == null){
+							appMap[appName] = controller.generateObject(appName, -1);
+						}
+						//appMap[appName].children.push(children[i]);	
+						*/					
+					}									
+				}
+				/*
+				for( var appName in appMap){
+					appObject.children.push(appMap[appName]);
+				}	
+				*/
+				cell.value.children = [];
+				cell.value.children.push(threadObject);
+				cell.value.children.push(processorObject);
+				cell.value.children.push(appObject);				
+			}
+			controller.addChildrenVertex(graph, cell);
+					
+		}			
+		/*
 		// 如果当前的cell是集合类型的，则从相应的store中读出子结点来并添加
 		if (resourceId < 0) {
 			// 应用实例集合
@@ -583,6 +694,7 @@ Ext.define('PaaSMonitor.controller.ModelViewController', {
 				}
 			});
 		}
+		*/
 	},
 
 	getChildType : function(parent) {

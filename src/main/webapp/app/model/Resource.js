@@ -18,9 +18,11 @@ Ext.define('PaaSMonitor.model.Resource', {
         },
         {
             name: 'resourcePropertyValues'
+        },
+        {
+            name: 'children'
         }
     ],
-
     proxy: {
         type: 'rest',
         timeout: 90000,
