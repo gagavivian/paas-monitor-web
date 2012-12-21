@@ -2,6 +2,7 @@ package org.seforge.monitor.web;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -9,6 +10,7 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 
 import org.seforge.monitor.domain.Resource;
+import org.seforge.monitor.domain.ResourcePrototype;
 import org.seforge.monitor.manager.ResourceManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -38,22 +40,31 @@ public class ModelController {
 		}else{
 			entities = resourceManager.getAppServersByGroup(groupId);
 		}		
+		for(Resource r : entities){
+			r.setChildrenCount(r.getChildren().size());
+		}
 		return new ResponseEntity<String>(new JSONSerializer()
 				.exclude("*.class")
 				.exclude("resourcePropertyValues")
-				.exclude("resourcePropertyValues.resourcePropertyKey.resourcePrototype")
-				.include("children")
+				.exclude("resourcePropertyValues.resourcePropertyKey.resourcePrototype")				
 				.transform(new DateTransformer("MM/dd/yy"), Date.class)
 				.serialize(entities), responseHeaders, HttpStatus.OK);
 
 	}
 	
 	@RequestMapping(value = "/getchildren", method = RequestMethod.GET)
-	public ResponseEntity<String> getChildren(@RequestParam("id") Integer id) {
+	public ResponseEntity<String> getChildren(@RequestParam("id") Integer id, @RequestParam("resourcePrototypeId") Integer resourcePrototypeId, @RequestParam("parentId") Integer parentId) {
 		HttpHeaders responseHeaders = new HttpHeaders();
 		responseHeaders.add("Content-Type", "application/json");
-		Set<Resource> entities;
-		entities = Resource.findResource(id).getChildren();
+		Collection<Resource> entities;
+		if(id !=null){
+			entities = Resource.findResource(id).getChildren();
+		}else{
+			entities = Resource.findResourceByResourcePrototypeAndParent(ResourcePrototype.findResourcePrototype(resourcePrototypeId),  Resource.findResource(parentId));
+		}		
+		for(Resource r : entities){
+			r.setChildrenCount(r.getChildren().size());
+		}
 		return new ResponseEntity<String>(new JSONSerializer()
 				.exclude("*.class")
 				.include("resourcePropertyValues")				
