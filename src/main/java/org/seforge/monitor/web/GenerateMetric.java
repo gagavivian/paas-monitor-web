@@ -50,17 +50,20 @@ public class GenerateMetric {
             response.setTotal(0L);
     	}else{
     		try {
+    			ResourceGroup group = ResourceGroup.findResourceGroup(groupId);
+    			
 
     	    	ArrayList<Metric> metrics = new ArrayList<Metric>(Metric.fromJsonArrayToMetrics(metricsJson));
     	    	
     	    	int len = metrics.size();
     	    	for (int i = 0; i < len; i ++) {
-    	    		metrics.get(i).setResourceGroup(ResourceGroup.findResourceGroup(groupId));
-    	    		metrics.get(i).setResourcePrototype(ResourcePrototype.findResourcePrototype(resourcePrototypeId));
+    	    		ResourcePrototype rpt = metrics.get(i).getMetricTemplate().getResourcePrototype();
+    	    		metrics.get(i).setResourceGroup(group);
+    	    		metrics.get(i).setResourcePrototype(rpt);
     	    		 	    		
     	    	}
     	    	
-    	    	metricManager.saveAndUpdateMetrics(metrics, ResourcePrototype.findResourcePrototype(resourcePrototypeId));
+    	    	metricManager.saveAndUpdateMetrics(metrics);
     	    	
                 returnStatus = HttpStatus.OK;
                 response.setMessage("All Metric Templates found");

@@ -19,11 +19,6 @@ Ext.define('PaaSMonitor.controller.ModelViewController', {
 		autoCreate : true
 	}],
 
-	appDictory : new Array(),
-	appReg : /^Apache Tomcat\/([\d\.]+)\s(.*)\s(.*)\s(.*)\s(.*)\s\/\/(.*)\/(\w*)\s(.*)$/,
-	threadReg : /^Apache Tomcat\/([\d\.]+)\s(.*)\s(.*)\sThread Pools$/,
-	processorReg : /^Apache Tomcat\/([\d\.]+)\s(.*)\s(.*)\sGlobal Request Processor$/,
-
 	init : function(application) {
 
 		this.control({
@@ -159,7 +154,7 @@ Ext.define('PaaSMonitor.controller.ModelViewController', {
 				var h = state.control.bounds.height / oldScale;
 				var s = state.view.scale;
 
-				return new mxRectangle(state.x + state.width / 2 + w / 2 * s, state.y + state.height + TreeNodeShape.prototype.segment * s + h / 2 * s, w * s, h * s);
+				return new mxRectangle(state.x + state.width + w * s, state.y  + TreeNodeShape.prototype.segment /2 * s + h * s, w * s, h * s);
 			}
 
 			return null;
@@ -175,6 +170,18 @@ Ext.define('PaaSMonitor.controller.ModelViewController', {
 				} finally {
 					this.model.endUpdate();
 				}
+			//如果已经获取到孩子数据，但是还未添加孩子节点
+			}else if(cells[0].value.children !=null && cells[0].value.children.length > 0 && this.model.getOutgoingEdges(cells[0]).length <= 0){
+				this.model.beginUpdate();
+				try {
+					var oldChildren = cells[0].value.children;
+					cells[0].value.children = controller.parseChildrenData(cells[0].value.id, cells[0].value.resourcePrototype.id, oldChildren, cells[0].value.name);
+					controller.addChildrenVertex(graph,cells[0]);
+					//controller.foldChildren(this, cells[0], !collapse);
+					this.model.setCollapsed(cells[0], collapse);	
+				} finally {
+					this.model.endUpdate();
+				}			
 			}else{
 				var resourceId = cells[0].value.id;
 				var rptId = cells[0].value.resourcePrototype.id;
@@ -189,7 +196,7 @@ Ext.define('PaaSMonitor.controller.ModelViewController', {
 					},
 					success : function(response) {					
 						var json = response.responseText;						
-						var children = controller.parseChildrenData(cells[0].value.id, cells[0].value.resourcePrototype.id, Ext.decode(json));
+						var children = controller.parseChildrenData(cells[0].value.id, cells[0].value.resourcePrototype.id, Ext.decode(json), cells[0].value.name);
 						cells[0].value.children = children;
 						cells[0].value.childrenCount = children.length;	
 						controller.addChildrenVertex(graph,cells[0]);							
@@ -208,11 +215,12 @@ Ext.define('PaaSMonitor.controller.ModelViewController', {
 	},
 	
 	
-	parseChildrenData : function(parentId, parentType, originalChildren){		
+	parseChildrenData : function(parentId, parentType, originalChildren, parentName){		
 		var controller = this;
 		//如果是tomcat 6或7的孩子的数据
 		if(parentType == 12 || parentType == 13){
 			var children = new Array();
+			//把web app文件夹的resourcePrototype id 暂时设为88
 			var appChild = controller.generateObject('Apps', -1);
 			appChild.resourcePrototype.id = parentType + 6;
 			appChild.parentId = parentId;
@@ -227,7 +235,7 @@ Ext.define('PaaSMonitor.controller.ModelViewController', {
 					threadChild.children.push(originalChildren[i]);
 				}else if(originalChildren[i].resourcePrototype.id == parentType +4){
 					processorChild.children.push(originalChildren[i]);
-				}else{
+				}else{					
 					appChild.children.push(originalChildren[i]);
 				}
 			}
@@ -238,7 +246,31 @@ Ext.define('PaaSMonitor.controller.ModelViewController', {
 			processorChild.childrenCount = processorChild.children.length;
 			children.push(processorChild);
 			return children;
-		}else{
+		}
+		//如果是app的孩子数据		
+		else if(parentType == 88){
+			var children = new Array();
+			var servletChild = controller.generateObject(parentName + ' Servlets', -1);
+			servletChild.resourcePrototype.id = parentType + 6;
+			servletChild.parentId = parentId;			
+			for( var i in originalChildren){
+				if(originalChildren[i].resourcePrototype.id == 20 || originalChildren[i].resourcePrototype.id == 25){
+					servletChild.children.push(originalChildren[i]);					
+				}
+				else children.push(originalChildren[i]);
+			}
+			servletChild.childrenCount = servletChild.children.length;
+			children.push(servletChild);
+			
+			return children;
+			
+		}else if(parentType == 18 || parentType == 19){
+			for( var i in originalChildren){
+				originalChildren[i].resourcePrototype.id = 88;
+			}
+			return originalChildren;
+		}
+		else{
 			return originalChildren;
 		}		
 	},
@@ -287,11 +319,13 @@ Ext.define('PaaSMonitor.controller.ModelViewController', {
 		} finally {
 			graph.getModel().endUpdate();
 		}
-		
+		/*
 		var children = parent.children;
 		for(var i in parent.children){
 			controller.addChildrenVertex(graph, children[i]);
+			
 		}
+		*/
 		
 	},
 
@@ -345,6 +379,7 @@ Ext.define('PaaSMonitor.controller.ModelViewController', {
 
 		var _proxy = _store.getProxy();
 		_proxy.setExtraParam('resourceId', cell.value.id);
+		_proxy.setExtraParam('groupId', Ext.groupId);
 
 		_store.load({
 			params : {
@@ -374,6 +409,7 @@ Ext.define('PaaSMonitor.controller.ModelViewController', {
 		if (Ext.groupId == 0) {
 			for (var i = 0; i < modelData.length; i++) {				
 				var phym = graph.insertVertex(parent, modelData[i].name, modelData[i], 30, space * i, 48, 48, 'Phym');
+				phym.setCollapsed(true);
 				//            this.expandChildren(graph, os, null, 'Vim');
 			}
 		}
@@ -406,6 +442,12 @@ Ext.define('PaaSMonitor.controller.ModelViewController', {
 				tomcatParent.childrenCount = tomcatParent.children.length;
 				var tomcatFolder = graph.insertVertex(parent, 'Tomcat', tomcatParent, 0, 0, 48, 48, 'ServerFolder');
 			}		
+			var children = parent.children;
+			for(var i in parent.children){
+				controller.addChildrenVertex(graph, children[i]);		
+				controller.foldChildren(graph, children[i], false);
+				graph.model.setCollapsed(children[i], true);		
+			}
 		}
 	},
 
@@ -449,7 +491,7 @@ Ext.define('PaaSMonitor.controller.ModelViewController', {
 		graph.getStylesheet().putCellStyle('AppInstance', appInstanceStyle);
 		paasUserStyle = createMoniteeStyleObject(image_path + 'paasUser.png');
 		graph.getStylesheet().putCellStyle('PaasUser', paasUserStyle);
-		collectionStyle = createMoniteeStyleObject(image_path + 'collection.jpg');
+		collectionStyle = createMoniteeStyleObject(image_path + 'folder.png');
 		graph.getStylesheet().putCellStyle('Collection', collectionStyle);
 		serverFolderStyle = createMoniteeStyleObject(image_path + 'serverfolder.png');
 		graph.getStylesheet().putCellStyle('ServerFolder', serverFolderStyle);
@@ -538,7 +580,7 @@ Ext.define('PaaSMonitor.controller.ModelViewController', {
 			case -1:
 				return 'Collection';
 			default:
-				return 'NotFound';
+				return 'AppInstance';
 		}
 	},
 
@@ -553,10 +595,10 @@ Ext.define('PaaSMonitor.controller.ModelViewController', {
 		var chart = historyDataWindow.down('panel').down('chart');
 		var historyDataStore = chart.getStore();
 		var _proxy = historyDataStore.getProxy();
-		//var groupId = 1;
+		
 		var resourceId = this.metric_being_updated;
 		var metricId = metricStore.getAt(row).get('id');
-		//_proxy.setExtraParam('groupId', groupId);
+		_proxy.setExtraParam('groupId', Ext.groupId);
 		_proxy.setExtraParam('resourceId', resourceId);
 		_proxy.setExtraParam('metricId', metricId);
 

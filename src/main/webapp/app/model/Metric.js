@@ -19,6 +19,10 @@ Ext.define('PaaSMonitor.model.Metric', {
             name: 'resourcePrototype'
         },
         {
+            name: 'rptName',
+            mapping: 'resourcePrototype.name'
+        },
+        {
             name: 'groupId'
         },
         {

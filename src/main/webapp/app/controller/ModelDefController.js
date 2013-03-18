@@ -55,6 +55,8 @@ Ext.define('PaaSMonitor.controller.ModelDefController', {
 
 	loadModelDef : function() {
 		var graph = this.defEditor.graph;
+
+		
 		var loadMask = new Ext.LoadMask(this.getDefPanel(), {
 			msg : "Loading"
 		});
@@ -325,52 +327,51 @@ Ext.define('PaaSMonitor.controller.ModelDefController', {
 		// Adds all required styles to the graph (see below)
 		this.configureDefStylesheet(graph);
 
-		// Adds sidebar icon for each object
-		// var attributeObject = new Attribute('ATTRIBUTENAME');
-		// var attribute = new mxCell(attributeObject, new mxGeometry(0, 0, 0, 26));
-		// attribute.setVertex(true);
-		// attribute.setConnectable(false);
-
-		var phymPrototype = Ext.create('PaaSMonitor.model.ResourcePrototype', {
-			typeId : 1,
-			name : 'VMware Vsphere'
-		});
-		var phym = new mxCell(phymPrototype.data, new mxGeometry(0, 0, 200, 54), 'phym');
-		phym.setVertex(true);
-		this.addSidebarIcon(graph, sidebar, phym, 'images/icons48/phym.png');
-
-		var vimPrototype = Ext.create('PaaSMonitor.model.ResourcePrototype', {
-			typeId : 2,
-			name : 'Win32'
-		});
-		var vim = new mxCell(vimPrototype.data, new mxGeometry(0, 0, 200, 54), 'vim');
-		vim.setVertex(true);
-		this.addSidebarIcon(graph, sidebar, vim, 'images/icons48/bigvim.png');
-
-		var platformServicePrototype = Ext.create('PaaSMonitor.model.ResourcePrototype', {
-			typeId : 3,
-			name : 'Mysql'
-		});
-		var platformService = new mxCell(platformServicePrototype.data, new mxGeometry(0, 0, 200, 54), 'service');
-		platformService.setVertex(true);
-		this.addSidebarIcon(graph, sidebar, platformService, 'images/icons48/service.png');
-
-		var appServerPrototype = Ext.create('PaaSMonitor.model.ResourcePrototype', {
+		//if(Ext.groupId == 0){
+			var phymPrototype = {
+				typeId : 1,
+				name : 'VMware Vsphere'
+			};
+			var phym = new mxCell(phymPrototype, new mxGeometry(0, 0, 200, 54), 'phym');
+			phym.setVertex(true);
+			this.addSidebarIcon(graph, sidebar, phym, 'images/icons48/phym.png');
+	
+			var vimPrototype = {
+				typeId : 2,
+				name : 'Win32'
+			};
+			var vim = new mxCell(vimPrototype, new mxGeometry(0, 0, 200, 54), 'vim');
+			vim.setVertex(true);
+			this.addSidebarIcon(graph, sidebar, vim, 'images/icons48/bigvim.png');
+	
+			/*
+			var platformServicePrototype = {
+				typeId : 3,
+				name : 'Mysql'
+			};
+			var platformService = new mxCell(platformServicePrototype, new mxGeometry(0, 0, 200, 54), 'service');
+			platformService.setVertex(true);
+			this.addSidebarIcon(graph, sidebar, platformService, 'images/icons48/service.png');
+			*/
+		//}
+		
+		var appServerPrototype = {
 			typeId : 4,
 			name : 'App Server'
-		});
-		var appServer = new mxCell(appServerPrototype.data, new mxGeometry(0, 0, 200, 54), 'appServer');
+		};
+		var appServer = new mxCell(appServerPrototype, new mxGeometry(0, 0, 200, 54), 'appServer');
 		appServer.setVertex(true);
 		this.addSidebarIcon(graph, sidebar, appServer, 'images/icons48/appserver.png');
 
-		var appPrototype = Ext.create('PaaSMonitor.model.ResourcePrototype', {
-			typeId : 1,
-			name : 'VMware Vsphere'
-		});
-		var app = new mxCell(appPrototype.data, new mxGeometry(0, 0, 200, 54), 'app');
+		var appPrototype = {
+			typeId : 18,
+			name : 'App'
+		};
+		var app = new mxCell(appPrototype, new mxGeometry(0, 0, 200, 54), 'app');
 		app.setVertex(true);
 		this.addSidebarIcon(graph, sidebar, app, 'images/icons48/app.png');
-
+		
+		/*
 		var appInstancePrototype = Ext.create('PaaSMonitor.model.ResourcePrototype', {
 			typeId : 1,
 			name : 'App Instance'
@@ -378,12 +379,13 @@ Ext.define('PaaSMonitor.controller.ModelDefController', {
 		var appInstance = new mxCell(appInstancePrototype.data, new mxGeometry(0, 0, 200, 54), 'appInstance');
 		appInstance.setVertex(true);
 		this.addSidebarIcon(graph, sidebar, appInstance, 'images/icons48/appInstance.png');
+		*/
 
-		var paasUserPrototype = Ext.create('PaaSMonitor.model.ResourcePrototype', {
+		var paasUserPrototype = {
 			typeId : 1,
-			name : 'VMware Vsphere'
-		});
-		var paasUser = new mxCell(paasUserPrototype.data, new mxGeometry(0, 0, 200, 54), 'paasUser');
+			name : 'PaaS User'
+		};
+		var paasUser = new mxCell(paasUserPrototype, new mxGeometry(0, 0, 200, 54), 'paasUser');
 		paasUser.setVertex(true);
 		this.addSidebarIcon(graph, sidebar, paasUser, 'images/icons48/paasUser.png');
 
@@ -698,7 +700,7 @@ Ext.define('PaaSMonitor.controller.ModelDefController', {
 		//需要在ModelView.MetricWindow中加入内容
 
 		// var url = '/metrics/' + cell.value.getAttributes('id') + '/all';
-		this.metric_being_updated = cell.value.id;
+		this.metric_being_updated = cell.value.typeId;
 		// var _url = 'metrics/all';
 
 		var _templateWindow = this.getTemplateWindow();
@@ -764,13 +766,13 @@ Ext.define('PaaSMonitor.controller.ModelDefController', {
 			switch(_radioGroup.getChecked()[0].inputValue) {
 				case '1':
 					appServerPrototype = Ext.create('PaaSMonitor.model.ResourcePrototype', {
-						typeId : 18,
+						typeId : 12,
 						name : 'Apache Tomcat 6.0'
 					});
 					break;
 				case '2':
 					appServerPrototype = Ext.create('PaaSMonitor.model.ResourcePrototype', {
-						typeId : 12,
+						typeId : 13,
 						name : 'Apache Tomcat 7.0'
 					});
 					break;

@@ -8,7 +8,7 @@ Ext.define('PaaSMonitor.view.ModelDef.MetricUpdateWindow', {
 
 	layout : 'fit',
 	height : 250,
-	width : 400,
+	width : 800,
 	title : '显示该资源的所有可用监测参数',
 
 	closeAction : 'hide',
@@ -49,6 +49,10 @@ Ext.define('PaaSMonitor.view.ModelDef.MetricUpdateWindow', {
 			}, {
 				header : '单位',
 				dataIndex : 'templateUnits'
+			}, {
+				header : '所属资源类型',
+				dataIndex : 'rptName',
+				flex: 3
 			}],
 
 			height : 200,
@@ -68,7 +72,7 @@ Ext.define('PaaSMonitor.view.ModelDef.MetricUpdateWindow', {
 
 		me.items = [grid];
 
-		var _store = grid.getStore();
+		//var _store = grid.getStore();
 		//var _selModel = grid.getSelectionModel();
 
 		var ok = Ext.create('Ext.Button', {

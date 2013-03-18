@@ -131,7 +131,7 @@ public class MetricController {
     
     // request for the customed metrics
     @RequestMapping(value = "/customed", method = RequestMethod.GET)
-    public ResponseEntity<String> listCustomedMetrics(@RequestParam("resourceId") Integer resourceId,
+    public ResponseEntity<String> listCustomedMetrics(@RequestParam("resourceId") Integer resourceId, @RequestParam("groupId") Integer groupId,
     		@RequestParam("start") Integer start, @RequestParam("limit") Integer limit ) {
     	HttpStatus returnStatus;
     	JsonObjectResponse response = new JsonObjectResponse();
@@ -144,7 +144,7 @@ public class MetricController {
     		try {
     			Resource resource = Resource.findResource(resourceId);
                 ResourcePrototype prototype = resource.getResourcePrototype();
-                ResourceGroup group = ResourceGroup.findResourceGroup(1);
+                ResourceGroup group = ResourceGroup.findResourceGroup(groupId);
 //                List total = metricManager.getMetricsByResourcePrototypeAndGroup(prototype, group);
                 
                 // 此处的方法需要修改成只返回用户定制的data的方法
@@ -166,7 +166,7 @@ public class MetricController {
     
     // request for history data of some metric
     @RequestMapping(value = "/history", method = RequestMethod.GET)
-    public ResponseEntity<String> listCustomedMetrics(@RequestParam("metricId") Integer metricId,@RequestParam("resourceId") Integer resourceId,
+    public ResponseEntity<String> listMetricHistory(@RequestParam("metricId") Integer metricId,@RequestParam("resourceId") Integer resourceId,
     		@RequestParam("start") Integer start, @RequestParam("limit") Integer limit ) {
     	HttpStatus returnStatus;
     	JsonObjectResponse response = new JsonObjectResponse();
