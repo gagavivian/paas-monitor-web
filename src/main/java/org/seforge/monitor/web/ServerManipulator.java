@@ -2,6 +2,7 @@ package org.seforge.monitor.web;
 
 import java.util.Date;
 
+import org.seforge.monitor.domain.Resource;
 import org.seforge.monitor.extjs.JsonObjectResponse;
 import org.seforge.monitor.manager.ResourceManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,18 +34,19 @@ public class ServerManipulator {
 
 	
 	//serverManipulator/addnewtomcat?ip=192.168.4.242&jmxPort=21711&path=E:\sasep\jsp\tomcat7_21411&servicename=tomcat7_21411&groupId=100
-	@RequestMapping(value = "/addnewtomcat", method = RequestMethod.GET)
+	@RequestMapping(value = "/addnewtomcat", method = RequestMethod.POST)
 	public ResponseEntity<String> add(@RequestParam("ip") String ip,
 			@RequestParam("jmxPort") String jmxPort,
 			@RequestParam("path") String path,
-			@RequestParam("servicename") String serviceName,
-			@RequestParam("groupId") String groupId) {
+			@RequestParam("servicename") String serviceName
+			//@RequestParam("groupId") String groupId
+			) {
 		HttpStatus returnStatus;
 		JsonObjectResponse response = new JsonObjectResponse();
 		try {
-			String jmxUrl = "service:jmx:rmi:///jndi/rmi://localhost:"+ jmxPort + "/jmxrmi";
-			Integer returnNumber = rm.addNewServer(ip, jmxUrl, path,
-					serviceName, groupId, "Apache Tomcat 7");
+			String groupId="100";
+			Integer returnNumber = rm.addNewServer(ip, jmxPort, path,
+					serviceName, groupId, "Apache Tomcat 7.0");			
 			if (returnNumber == -1) {
 				returnStatus = HttpStatus.INTERNAL_SERVER_ERROR;
 				response.setMessage("New server creating failed!");
