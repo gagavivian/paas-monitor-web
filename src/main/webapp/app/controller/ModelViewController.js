@@ -269,6 +269,30 @@ Ext.define('PaaSMonitor.controller.ModelViewController', {
 				originalChildren[i].resourcePrototype.id = 88;
 			}
 			return originalChildren;
+		}else if(parentType == 11){
+			//如果是对Apache的应用子节点进行解析
+			var children = new Array();
+			//把web app文件夹的resourcePrototype id 暂时设为88
+			var phpChild = controller.generateObject('PHP Apps', -1);
+			//phpChild.resourcePrototype.id = parentType + 6;
+			phpChild.parentId = parentId;
+			var htmlChild = controller.generateObject('HTML Apps', -1);
+			//threadChild.resourcePrototype.id = parentType + 2;
+			htmlChild.parentId = parentId;			
+			for( var i in originalChildren){
+				if(originalChildren[i].resourcePrototype.id == 28){
+					htmlChild.children.push(originalChildren[i]);
+				}else if(originalChildren[i].resourcePrototype.id == 29){
+					phpChild.children.push(originalChildren[i]);
+				}
+			}
+			phpChild.childrenCount = phpChild.children.length;
+			phpChild.name = phpChild.name + ' (' + phpChild.childrenCount + ')';
+			children.push(phpChild); 
+			htmlChild.childrenCount = htmlChild.children.length;
+			htmlChild.name = htmlChild.name + ' (' + htmlChild.childrenCount + ')';
+			children.push(htmlChild);			
+			return children;
 		}
 		else{
 			return originalChildren;
