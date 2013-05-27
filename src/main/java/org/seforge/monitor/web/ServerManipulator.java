@@ -34,17 +34,17 @@ public class ServerManipulator {
 
 	
 	//serverManipulator/addnewtomcat?ip=192.168.4.242&jmxPort=21711&path=E:\sasep\jsp\tomcat7_21411&servicename=tomcat7_21411&groupId=100
-	@RequestMapping(value = "/addnewtomcat", method = RequestMethod.POST)
+	@RequestMapping(value = "/addnewtomcat", method = {RequestMethod.POST, RequestMethod.GET})
 	public ResponseEntity<String> add(@RequestParam("ip") String ip,
 			@RequestParam("jmxPort") String jmxPort,
 			@RequestParam("path") String path,
-			@RequestParam("servicename") String serviceName
-			//@RequestParam("groupId") String groupId
+			@RequestParam("servicename") String serviceName,
+			@RequestParam("groupId") String groupId
 			) {
 		HttpStatus returnStatus;
 		JsonObjectResponse response = new JsonObjectResponse();
 		try {
-			String groupId="100";
+			
 			Integer returnNumber = rm.addNewServer(ip, jmxPort, path,
 					serviceName, groupId, "Apache Tomcat 7.0");			
 			if (returnNumber == -1) {
@@ -131,6 +131,41 @@ public class ServerManipulator {
 				.transform(new DateTransformer("MM/dd/yy"), Date.class)
 				.serialize(response), returnStatus);
 	}
+	
+	
+	// /serverManipulator/addiis?ip=192.168.4.179&groupId=100
+	@RequestMapping(value="/addiis", method = RequestMethod.GET)
+	public ResponseEntity<String> addIis(@RequestParam("ip") String ip,
+			@RequestParam("groupId") String groupId) {
+		HttpStatus returnStatus;
+		JsonObjectResponse response = new JsonObjectResponse();
+		try {
+			Integer returnNumber = rm.addIis(ip, groupId);
+			if (returnNumber == -1) {
+				returnStatus = HttpStatus.INTERNAL_SERVER_ERROR;
+				response.setMessage("New IIS server creating failed!");
+				response.setSuccess(false);
+				response.setTotal(0L);
+			} else {
+				returnStatus = HttpStatus.OK;
+				response.setMessage("New IIS server created!");
+				response.setSuccess(true);
+				response.setTotal(1L);
+				response.setData(returnNumber);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			returnStatus = HttpStatus.INTERNAL_SERVER_ERROR;
+			response.setMessage("New server creating failed!");
+			response.setSuccess(false);
+			response.setTotal(0L);
+		}
+		return new ResponseEntity<String>(new JSONSerializer()
+				.exclude("*.class").exclude("data.resourcePrototype")
+				.transform(new DateTransformer("MM/dd/yy"), Date.class)
+				.serialize(response), returnStatus);
+	}
+
 	
 	// url:  /serverManipulator/deleteserver?id=2563
 	@RequestMapping(value = "/deleteserver", method = RequestMethod.GET)

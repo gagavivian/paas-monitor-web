@@ -2,6 +2,7 @@ package org.seforge.monitor.web;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -10,6 +11,7 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 
 import org.seforge.monitor.domain.Resource;
+import org.seforge.monitor.domain.ResourceGroup;
 import org.seforge.monitor.domain.ResourcePrototype;
 import org.seforge.monitor.manager.ResourceManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +37,7 @@ public class ModelController {
 		HttpHeaders responseHeaders = new HttpHeaders();
 		responseHeaders.add("Content-Type", "application/json");
 		List<Resource> entities;
-		if(groupId == 0){
+		if(groupId == 1){
 			entities = resourceManager.getAllPhyms();
 		}else{
 			entities = resourceManager.getAppServersByGroup(groupId);
@@ -53,18 +55,33 @@ public class ModelController {
 	}
 	
 	@RequestMapping(value = "/getchildren", method = RequestMethod.GET)
-	public ResponseEntity<String> getChildren(@RequestParam("id") Integer id, @RequestParam("resourcePrototypeId") Integer resourcePrototypeId, @RequestParam("parentId") Integer parentId) {
+	public ResponseEntity<String> getChildren(@RequestParam("id") Integer id, @RequestParam("resourcePrototypeId") Integer resourcePrototypeId, @RequestParam("parentId") Integer parentId, @RequestParam("groupId") Integer groupId) {
 		HttpHeaders responseHeaders = new HttpHeaders();
 		responseHeaders.add("Content-Type", "application/json");
 		Collection<Resource> entities;
-		if(id !=null){
-			entities = Resource.findResource(id).getChildren();
+		//如果是要获取apache的孩子节点
+		if(resourcePrototypeId == 11){
+			Collection<Resource> original = Resource.findResource(id).getChildren();
+			entities = new ArrayList<Resource>();
+			for(Resource r : original){
+				ResourceGroup g = ResourceGroup.findResourceGroup(groupId);
+				if(r.getResourceGroups().contains(g)){
+					entities.add(r);
+					r.setChildrenCount(r.getChildren().size());
+				}
+				
+			}
 		}else{
-			entities = Resource.findResourceByResourcePrototypeAndParent(ResourcePrototype.findResourcePrototype(resourcePrototypeId),  Resource.findResource(parentId));
-		}		
-		for(Resource r : entities){
-			r.setChildrenCount(r.getChildren().size());
+			if(id !=null){
+				entities = Resource.findResource(id).getChildren();
+			}else{
+				entities = Resource.findResourceByResourcePrototypeAndParent(ResourcePrototype.findResourcePrototype(resourcePrototypeId),  Resource.findResource(parentId));
+			}		
+			for(Resource r : entities){
+				r.setChildrenCount(r.getChildren().size());
+			}
 		}
+		
 		return new ResponseEntity<String>(new JSONSerializer()
 				.exclude("*.class")
 				.include("resourcePropertyValues")				

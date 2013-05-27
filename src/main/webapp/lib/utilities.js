@@ -32,3 +32,4 @@ function lowerFirstLetter(str) {
 	rest = str.substring(1, str.length);
 	return first + rest;
 }
+

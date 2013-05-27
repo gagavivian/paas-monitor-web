@@ -28,6 +28,23 @@ Ext.define('PaaSMonitor.view.Navigation', {
                     store: 'MenuStore',
                     trackOver: true,
                     flex: 1
+                },{
+                	xtype: 'button',
+                	text: 'Log out',
+                	handler: function() {        				
+        				Ext.util.Cookies.clear('_monitor_');	
+        				Ext.Ajax.request({
+							url : 'logout',
+							method : 'GET',			
+							success : function(response) {
+								location.href='http://sso.seforge.org/javasso/member/rlogin.do?redirectTo=http://monitor.seforge.org/';
+							},
+							failure : function(response) {
+								location.href='http://sso.seforge.org/javasso/member/rlogin.do?redirectTo=http://monitor.seforge.org/';
+
+							}
+					});					
+    				}
                 }
             ]
         });

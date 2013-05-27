@@ -364,7 +364,7 @@ Ext.define('PaaSMonitor.controller.ModelDefController', {
 		this.addSidebarIcon(graph, sidebar, appServer, 'images/icons48/appserver.png');
 
 		var appPrototype = {
-			typeId : 18,
+			typeId : 19,
 			name : 'App'
 		};
 		var app = new mxCell(appPrototype, new mxGeometry(0, 0, 200, 54), 'app');

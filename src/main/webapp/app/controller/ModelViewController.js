@@ -192,7 +192,8 @@ Ext.define('PaaSMonitor.controller.ModelViewController', {
 					params : {
 					 	id : resourceId,
 					 	resourcePrototypeId : rptId,
-					 	parentId : cells[0].value.parentId
+					 	parentId : cells[0].value.parentId,
+					 	groupId : Ext.groupId
 					},
 					success : function(response) {					
 						var json = response.responseText;						
@@ -430,7 +431,7 @@ Ext.define('PaaSMonitor.controller.ModelViewController', {
 		var parent = graph.getDefaultParent();
 		var space = 100;
 		//呈现全局视图
-		if (Ext.groupId == 0) {
+		if (Ext.groupId == 1) {
 			for (var i = 0; i < modelData.length; i++) {				
 				var phym = graph.insertVertex(parent, modelData[i].name, modelData[i], 30, space * i, 48, 48, 'Phym');
 				phym.setCollapsed(true);
@@ -460,12 +461,14 @@ Ext.define('PaaSMonitor.controller.ModelViewController', {
 			}
 			if (apacheParent.children.length != 0) {
 				apacheParent.childrenCount = apacheParent.children.length;
-				var apacheFolder = graph.insertVertex(parent, 'Apache', apacheParent, 0, 0, 48, 48, 'ServerFolder');				
+				apacheParent.name = 'Apache ('+apacheParent.childrenCount + ')';
+				var apacheFolder = graph.insertVertex(parent, 'Apache', apacheParent, 20, 20, 48, 48, 'ServerFolder');				
 			}
 			if (tomcatParent.children.length != 0) {
 				tomcatParent.childrenCount = tomcatParent.children.length;
-				var tomcatFolder = graph.insertVertex(parent, 'Tomcat', tomcatParent, 0, 0, 48, 48, 'ServerFolder');
-			}		
+				tomcatParent.name = 'Tomcat ('+tomcatParent.childrenCount + ')';
+				var tomcatFolder = graph.insertVertex(parent, 'Tomcat', tomcatParent, 20, 200, 48, 48, 'ServerFolder');
+			}			
 			var children = parent.children;
 			for(var i in parent.children){
 				controller.addChildrenVertex(graph, children[i]);		

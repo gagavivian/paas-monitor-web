@@ -12,6 +12,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.seforge.monitor.domain.GroupOwner;
+import org.seforge.monitor.domain.ResourceGroup;
 import org.seforge.monitor.utils.Requester;
 
 
@@ -19,9 +21,9 @@ import org.seforge.monitor.utils.Requester;
 public class AuthorizationFilter implements Filter {
 
 	static String ssoAddress = "http://sso.seforge.org/javasso/member/verify.do";
-	public static String userToken = "ccUser";
+	public static String userToken = "groupowner";
 	public static String whichCookie = "_sso_";
-	static String redirectURL = "http://sso.seforge.org/javasso/member/rlogin.do?redirectTo=http://monitor.seforge.org";
+	static String redirectURL = "http://sso.seforge.org/javasso/member/rlogin.do?redirectTo=http://monitor.seforge.org/";
 
 	// *********************************************************************
 	// Initialization
@@ -76,8 +78,9 @@ public class AuthorizationFilter implements Filter {
 			}
 		}
 		if (Base64Cookie_val == null) {
-			//clearCookie(request, response);
+			//clearCookie(request, response);			
 			response.sendRedirect(this.redirectURL);
+			
 			// abort chain
 			return;
 
@@ -98,9 +101,31 @@ public class AuthorizationFilter implements Filter {
 				 * 权限授予
 				 * 
 				 */
+				GroupOwner owner = GroupOwner.findGroupOwnersByNameEquals(user).getResultList().get(0);	
+				Integer groupId = 1;
+				Cookie monitorCookie[] = request.getCookies();
+				Cookie namecookie = null;				
+				if (monitorCookie != null && monitorCookie.length > 0) {					
+					for (int i = 0; i < myCookie.length; i++) {						
+						if (myCookie[i].getName().equals("_monitor_")) {
+							namecookie = myCookie[i];							
+						}
+					}
+				}				
+				if(namecookie == null){
+					
+					for(ResourceGroup group : owner.getResourceGroups()){
+						groupId = group.getId();
+					}
+					namecookie = new Cookie("_monitor_",groupId.toString());  
+					namecookie.setPath("/");
+					response.addCookie(namecookie); 
+				}   	
+				
 				if (session != null) { // probably unncessary
-					session.setAttribute(this.userToken, user);
+					session.setAttribute(this.userToken, groupId);
 				}
+				
 			} else {
 				throw new ServletException("Unexpected authentication error");
 			}
